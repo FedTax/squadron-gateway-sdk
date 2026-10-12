@@ -106,6 +106,11 @@ type NotificationRecord struct {
 type PostMessageRequest struct {
 	Payload     string
 	Attachments []FileAttachment
+	// MissionID and TaskID identify the run and task whose agent posted, so a
+	// gateway can relate the post to that run's questions and notifications.
+	// Empty when the post wasn't made inside a mission.
+	MissionID string
+	TaskID    string
 }
 
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that

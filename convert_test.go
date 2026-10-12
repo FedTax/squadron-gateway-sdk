@@ -263,3 +263,11 @@ func TestMessageToolSpecFromProtoNilIsSafe(t *testing.T) {
 		t.Errorf("nil response should yield zero-value MessageToolSpec, got %+v", got)
 	}
 }
+
+func TestPostMessageRoundTripCarriesMissionContext(t *testing.T) {
+	in := PostMessageRequest{Payload: `{"text":"hi"}`, MissionID: "m-1", TaskID: "t-1"}
+	got := postMessageFromProto(postMessageToProto(in))
+	if got.MissionID != "m-1" || got.TaskID != "t-1" || got.Payload != in.Payload {
+		t.Errorf("got %+v", got)
+	}
+}

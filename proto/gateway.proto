@@ -56,6 +56,11 @@ service GatewayService {
 message PostMessageRequest {
     string payload = 1;
     repeated FileAttachment attachments = 2;
+    // The mission run and task whose agent posted, so a gateway can relate
+    // the post to that run's questions and notifications. Empty outside a
+    // mission.
+    string mission_id = 3;
+    string task_id = 4;
 }
 
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that

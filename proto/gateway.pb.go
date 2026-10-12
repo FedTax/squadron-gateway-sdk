@@ -26,9 +26,14 @@ const (
 // file attachments. The gateway parses payload and uploads each attachment's
 // bytes directly — it never fetches a URL.
 type PostMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Payload       string                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
-	Attachments   []*FileAttachment      `protobuf:"bytes,2,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Payload     string                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
+	Attachments []*FileAttachment      `protobuf:"bytes,2,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	// The mission run and task whose agent posted, so a gateway can relate
+	// the post to that run's questions and notifications. Empty outside a
+	// mission.
+	MissionId     string `protobuf:"bytes,3,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
+	TaskId        string `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +80,20 @@ func (x *PostMessageRequest) GetAttachments() []*FileAttachment {
 		return x.Attachments
 	}
 	return nil
+}
+
+func (x *PostMessageRequest) GetMissionId() string {
+	if x != nil {
+		return x.MissionId
+	}
+	return ""
+}
+
+func (x *PostMessageRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that
@@ -881,10 +900,13 @@ var File_proto_gateway_proto protoreflect.FileDescriptor
 
 const file_proto_gateway_proto_rawDesc = "" +
 	"\n" +
-	"\x13proto/gateway.proto\x12\agateway\"i\n" +
+	"\x13proto/gateway.proto\x12\agateway\"\xa1\x01\n" +
 	"\x12PostMessageRequest\x12\x18\n" +
 	"\apayload\x18\x01 \x01(\tR\apayload\x129\n" +
-	"\vattachments\x18\x02 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\"c\n" +
+	"\vattachments\x18\x02 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\x12\x1d\n" +
+	"\n" +
+	"mission_id\x18\x03 \x01(\tR\tmissionId\x12\x17\n" +
+	"\atask_id\x18\x04 \x01(\tR\x06taskId\"c\n" +
 	"\x0eFileAttachment\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x1b\n" +
 	"\tmime_type\x18\x02 \x01(\tR\bmimeType\x12\x18\n" +

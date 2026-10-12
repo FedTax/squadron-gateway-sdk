@@ -87,7 +87,7 @@ func notificationFromProto(p *pb.NotificationRecord) NotificationRecord {
 }
 
 func postMessageToProto(r PostMessageRequest) *pb.PostMessageRequest {
-	out := &pb.PostMessageRequest{Payload: r.Payload}
+	out := &pb.PostMessageRequest{Payload: r.Payload, MissionId: r.MissionID, TaskId: r.TaskID}
 	for _, a := range r.Attachments {
 		out.Attachments = append(out.Attachments, &pb.FileAttachment{
 			Filename: a.Filename,
@@ -102,7 +102,7 @@ func postMessageFromProto(p *pb.PostMessageRequest) PostMessageRequest {
 	if p == nil {
 		return PostMessageRequest{}
 	}
-	req := PostMessageRequest{Payload: p.Payload}
+	req := PostMessageRequest{Payload: p.Payload, MissionID: p.MissionId, TaskID: p.TaskId}
 	for _, a := range p.Attachments {
 		req.Attachments = append(req.Attachments, FileAttachment{
 			Filename: a.Filename,
