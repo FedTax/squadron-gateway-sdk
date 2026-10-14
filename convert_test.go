@@ -271,3 +271,13 @@ func TestPostMessageRoundTripCarriesMissionContext(t *testing.T) {
 		t.Errorf("got %+v", got)
 	}
 }
+
+func TestLinkRoundTripCarriesKeyAndRun(t *testing.T) {
+	original := LinkRequest{Key: "DEV-123", MissionID: "run-1", TaskID: "task-1"}
+	if got := linkFromProto(linkToProto(original)); got != original {
+		t.Errorf("got %+v, want %+v", got, original)
+	}
+	if got := linkFromProto(nil); got != (LinkRequest{}) {
+		t.Errorf("nil request should yield zero-value LinkRequest, got %+v", got)
+	}
+}

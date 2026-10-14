@@ -113,6 +113,23 @@ type PostMessageRequest struct {
 	TaskID    string
 }
 
+// LinkRequest asks the gateway to join a mission run to the request it holds
+// under Key (a gateway-defined request key, e.g. a ticket key), so the run's
+// questions and notifications reach that request even when the run never
+// posts first.
+type LinkRequest struct {
+	Key       string
+	MissionID string
+	TaskID    string
+}
+
+// Linker is implemented by gateways that group a run's messages by request.
+// It's separate from Gateway so gateways without requests needn't add it;
+// squadron's builtins.gateway.link reports an error against those.
+type Linker interface {
+	Link(ctx context.Context, req LinkRequest) error
+}
+
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that
 // squadron has already read and is shipping as raw bytes for the gateway to
 // upload to its external system.

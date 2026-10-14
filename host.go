@@ -132,6 +132,13 @@ func (g *GRPCGatewayClient) MessageToolSpec(ctx context.Context) (MessageToolSpe
 	return messageToolSpecFromProto(resp), nil
 }
 
+// Link asks the gateway to join a run to an existing request. A gateway
+// without requests returns codes.Unimplemented.
+func (g *GRPCGatewayClient) Link(ctx context.Context, req LinkRequest) error {
+	_, err := g.client.Link(ctx, linkToProto(req))
+	return err
+}
+
 // Shutdown asks the gateway to clean up before squadron kills the
 // subprocess. Best-effort — squadron should tear down the subprocess
 // regardless of return value.

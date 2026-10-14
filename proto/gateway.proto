@@ -44,6 +44,14 @@ service GatewayService {
     // can advertise exactly the rich-message shape it accepts.
     rpc MessageToolSpec(Empty) returns (MessageToolSpecResponse);
 
+    // Link joins the calling mission run to the request the gateway already
+    // holds under key, before the run sends anything. Squadron exposes this
+    // to agents via the builtins.gateway.link tool. Without it, a run whose
+    // first message is a question or notification has no key to join by, so
+    // the gateway can only open a separate request for it. Gateways that
+    // don't group messages by request may leave it unimplemented.
+    rpc Link(LinkRequest) returns (Empty);
+
     // Shutdown asks the gateway to release external resources cleanly
     // before squadron tears down the subprocess.
     rpc Shutdown(Empty) returns (Empty);
@@ -61,6 +69,15 @@ message PostMessageRequest {
     // mission.
     string mission_id = 3;
     string task_id = 4;
+}
+
+// LinkRequest names the request a mission run belongs to. key is the
+// gateway-defined request key the agent passed (e.g. a ticket key);
+// mission_id and task_id identify the calling run, as on PostMessageRequest.
+message LinkRequest {
+    string key = 1;
+    string mission_id = 2;
+    string task_id = 3;
 }
 
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that

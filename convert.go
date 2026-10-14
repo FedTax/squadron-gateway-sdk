@@ -166,3 +166,14 @@ func parseTime(s string) time.Time {
 	}
 	return t.UTC()
 }
+
+func linkToProto(r LinkRequest) *pb.LinkRequest {
+	return &pb.LinkRequest{Key: r.Key, MissionId: r.MissionID, TaskId: r.TaskID}
+}
+
+func linkFromProto(p *pb.LinkRequest) LinkRequest {
+	if p == nil {
+		return LinkRequest{}
+	}
+	return LinkRequest{Key: p.Key, MissionID: p.MissionId, TaskID: p.TaskId}
+}
