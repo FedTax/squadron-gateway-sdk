@@ -26,6 +26,7 @@ const (
 	GatewayService_PostMessage_FullMethodName           = "/gateway.GatewayService/PostMessage"
 	GatewayService_MessageToolSpec_FullMethodName       = "/gateway.GatewayService/MessageToolSpec"
 	GatewayService_Link_FullMethodName                  = "/gateway.GatewayService/Link"
+	GatewayService_EditMessage_FullMethodName           = "/gateway.GatewayService/EditMessage"
 	GatewayService_Shutdown_FullMethodName              = "/gateway.GatewayService/Shutdown"
 )
 
@@ -59,8 +60,9 @@ type GatewayServiceClient interface {
 	// is the raw JSON the agent produced for the tool, matching the schema the
 	// gateway advertised via MessageToolSpec — the gateway owns the message
 	// contract (text, formatting, channel override, attachments, …) and parses
-	// the payload itself.
-	PostMessage(ctx context.Context, in *PostMessageRequest, opts ...grpc.CallOption) (*Empty, error)
+	// the payload itself. The response carries the posted message's ID, so
+	// the agent can edit that message later with EditMessage.
+	PostMessage(ctx context.Context, in *PostMessageRequest, opts ...grpc.CallOption) (*PostMessageResponse, error)
 	// MessageToolSpec returns how the builtins.gateway.post tool should be
 	// presented to the LLM for this gateway: a description (formatting docs)
 	// and an optional JSON Schema for the tool's parameters. Squadron fetches
@@ -74,6 +76,12 @@ type GatewayServiceClient interface {
 	// the gateway can only open a separate request for it. Gateways that
 	// don't group messages by request may leave it unimplemented.
 	Link(ctx context.Context, in *LinkRequest, opts ...grpc.CallOption) (*Empty, error)
+	// EditMessage replaces the content of a message the gateway posted,
+	// identified by the ID PostMessage returned. Squadron exposes this to
+	// agents via the builtins.gateway.edit tool, so a run can update a post
+	// (e.g. a status line) instead of posting it again. Gateways that can't
+	// edit messages may leave it unimplemented.
+	EditMessage(ctx context.Context, in *EditMessageRequest, opts ...grpc.CallOption) (*Empty, error)
 	// Shutdown asks the gateway to release external resources cleanly
 	// before squadron tears down the subprocess.
 	Shutdown(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
@@ -127,9 +135,9 @@ func (c *gatewayServiceClient) OnNotification(ctx context.Context, in *Notificat
 	return out, nil
 }
 
-func (c *gatewayServiceClient) PostMessage(ctx context.Context, in *PostMessageRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *gatewayServiceClient) PostMessage(ctx context.Context, in *PostMessageRequest, opts ...grpc.CallOption) (*PostMessageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
+	out := new(PostMessageResponse)
 	err := c.cc.Invoke(ctx, GatewayService_PostMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -151,6 +159,16 @@ func (c *gatewayServiceClient) Link(ctx context.Context, in *LinkRequest, opts .
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
 	err := c.cc.Invoke(ctx, GatewayService_Link_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayServiceClient) EditMessage(ctx context.Context, in *EditMessageRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, GatewayService_EditMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -197,8 +215,9 @@ type GatewayServiceServer interface {
 	// is the raw JSON the agent produced for the tool, matching the schema the
 	// gateway advertised via MessageToolSpec — the gateway owns the message
 	// contract (text, formatting, channel override, attachments, …) and parses
-	// the payload itself.
-	PostMessage(context.Context, *PostMessageRequest) (*Empty, error)
+	// the payload itself. The response carries the posted message's ID, so
+	// the agent can edit that message later with EditMessage.
+	PostMessage(context.Context, *PostMessageRequest) (*PostMessageResponse, error)
 	// MessageToolSpec returns how the builtins.gateway.post tool should be
 	// presented to the LLM for this gateway: a description (formatting docs)
 	// and an optional JSON Schema for the tool's parameters. Squadron fetches
@@ -212,6 +231,12 @@ type GatewayServiceServer interface {
 	// the gateway can only open a separate request for it. Gateways that
 	// don't group messages by request may leave it unimplemented.
 	Link(context.Context, *LinkRequest) (*Empty, error)
+	// EditMessage replaces the content of a message the gateway posted,
+	// identified by the ID PostMessage returned. Squadron exposes this to
+	// agents via the builtins.gateway.edit tool, so a run can update a post
+	// (e.g. a status line) instead of posting it again. Gateways that can't
+	// edit messages may leave it unimplemented.
+	EditMessage(context.Context, *EditMessageRequest) (*Empty, error)
 	// Shutdown asks the gateway to release external resources cleanly
 	// before squadron tears down the subprocess.
 	Shutdown(context.Context, *Empty) (*Empty, error)
@@ -237,7 +262,7 @@ func (UnimplementedGatewayServiceServer) OnHumanInputResolved(context.Context, *
 func (UnimplementedGatewayServiceServer) OnNotification(context.Context, *NotificationRecord) (*Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method OnNotification not implemented")
 }
-func (UnimplementedGatewayServiceServer) PostMessage(context.Context, *PostMessageRequest) (*Empty, error) {
+func (UnimplementedGatewayServiceServer) PostMessage(context.Context, *PostMessageRequest) (*PostMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PostMessage not implemented")
 }
 func (UnimplementedGatewayServiceServer) MessageToolSpec(context.Context, *Empty) (*MessageToolSpecResponse, error) {
@@ -245,6 +270,9 @@ func (UnimplementedGatewayServiceServer) MessageToolSpec(context.Context, *Empty
 }
 func (UnimplementedGatewayServiceServer) Link(context.Context, *LinkRequest) (*Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Link not implemented")
+}
+func (UnimplementedGatewayServiceServer) EditMessage(context.Context, *EditMessageRequest) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method EditMessage not implemented")
 }
 func (UnimplementedGatewayServiceServer) Shutdown(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Shutdown not implemented")
@@ -396,6 +424,24 @@ func _GatewayService_Link_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GatewayService_EditMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).EditMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayService_EditMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).EditMessage(ctx, req.(*EditMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GatewayService_Shutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -448,6 +494,10 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Link",
 			Handler:    _GatewayService_Link_Handler,
+		},
+		{
+			MethodName: "EditMessage",
+			Handler:    _GatewayService_EditMessage_Handler,
 		},
 		{
 			MethodName: "Shutdown",

@@ -113,6 +113,17 @@ func postMessageFromProto(p *pb.PostMessageRequest) PostMessageRequest {
 	return req
 }
 
+func editMessageToProto(r EditMessageRequest) *pb.EditMessageRequest {
+	return &pb.EditMessageRequest{MessageId: r.MessageID, Payload: r.Payload, MissionId: r.MissionID, TaskId: r.TaskID}
+}
+
+func editMessageFromProto(p *pb.EditMessageRequest) EditMessageRequest {
+	if p == nil {
+		return EditMessageRequest{}
+	}
+	return EditMessageRequest{MessageID: p.MessageId, Payload: p.Payload, MissionID: p.MissionId, TaskID: p.TaskId}
+}
+
 func messageToolSpecToProto(s MessageToolSpec) *pb.MessageToolSpecResponse {
 	return &pb.MessageToolSpecResponse{Description: s.Description, ParamsSchemaJson: s.ParamsSchema}
 }

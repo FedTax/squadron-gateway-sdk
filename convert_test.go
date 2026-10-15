@@ -281,3 +281,13 @@ func TestLinkRoundTripCarriesKeyAndRun(t *testing.T) {
 		t.Errorf("nil request should yield zero-value LinkRequest, got %+v", got)
 	}
 }
+
+func TestEditMessageRoundTripCarriesIDPayloadAndRun(t *testing.T) {
+	original := EditMessageRequest{MessageID: "C1/1700000000.000001", Payload: `{"text":"done"}`, MissionID: "run-1", TaskID: "task-1"}
+	if got := editMessageFromProto(editMessageToProto(original)); got != original {
+		t.Errorf("got %+v, want %+v", got, original)
+	}
+	if got := editMessageFromProto(nil); got != (EditMessageRequest{}) {
+		t.Errorf("nil request should yield zero-value EditMessageRequest, got %+v", got)
+	}
+}

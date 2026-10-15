@@ -130,6 +130,30 @@ type Linker interface {
 	Link(ctx context.Context, req LinkRequest) error
 }
 
+// PostMessageResponse identifies the message a post created or replaced, in
+// the gateway's own ID format, for a later EditMessageRequest. Empty when the
+// gateway doesn't identify messages.
+type PostMessageResponse struct {
+	MessageID string
+}
+
+// EditMessageRequest replaces the message MessageID names (an ID from
+// PostMessageResponse) with Payload, which has the same gateway-schema shape
+// as a post's payload.
+type EditMessageRequest struct {
+	MessageID string
+	Payload   string
+	MissionID string
+	TaskID    string
+}
+
+// Editor is implemented by gateways that can change a message after posting
+// it. It's separate from Gateway so gateways that can't edit needn't add it;
+// squadron's builtins.gateway.edit reports an error against those.
+type Editor interface {
+	EditMessage(ctx context.Context, req EditMessageRequest) error
+}
+
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that
 // squadron has already read and is shipping as raw bytes for the gateway to
 // upload to its external system.
@@ -237,8 +261,10 @@ type Gateway interface {
 
 	// PostMessage posts a message to the gateway's external system. The
 	// payload is the raw, gateway-schema-shaped JSON the agent produced for
-	// the builtins.gateway.post tool; the gateway parses it itself.
-	PostMessage(ctx context.Context, req PostMessageRequest) error
+	// the builtins.gateway.post tool; the gateway parses it itself. Return the
+	// posted message's ID so the agent can edit it, or a zero response when
+	// the gateway doesn't identify messages.
+	PostMessage(ctx context.Context, req PostMessageRequest) (PostMessageResponse, error)
 
 	// MessageToolSpec returns the description + optional JSON Schema squadron
 	// uses to present the builtins.gateway.post tool to the LLM. Return a zero

@@ -117,10 +117,14 @@ func (g *GRPCGatewayClient) OnNotification(ctx context.Context, rec Notification
 	return err
 }
 
-// PostMessage forwards a post request to the gateway.
-func (g *GRPCGatewayClient) PostMessage(ctx context.Context, req PostMessageRequest) error {
-	_, err := g.client.PostMessage(ctx, postMessageToProto(req))
-	return err
+// PostMessage forwards a post request to the gateway and returns the posted
+// message's ID.
+func (g *GRPCGatewayClient) PostMessage(ctx context.Context, req PostMessageRequest) (PostMessageResponse, error) {
+	resp, err := g.client.PostMessage(ctx, postMessageToProto(req))
+	if err != nil {
+		return PostMessageResponse{}, err
+	}
+	return PostMessageResponse{MessageID: resp.GetMessageId()}, nil
 }
 
 // MessageToolSpec fetches the post-tool spec from the gateway.
@@ -136,6 +140,13 @@ func (g *GRPCGatewayClient) MessageToolSpec(ctx context.Context) (MessageToolSpe
 // without requests returns codes.Unimplemented.
 func (g *GRPCGatewayClient) Link(ctx context.Context, req LinkRequest) error {
 	_, err := g.client.Link(ctx, linkToProto(req))
+	return err
+}
+
+// EditMessage asks the gateway to replace a message it posted. A gateway
+// that can't edit messages returns codes.Unimplemented.
+func (g *GRPCGatewayClient) EditMessage(ctx context.Context, req EditMessageRequest) error {
+	_, err := g.client.EditMessage(ctx, editMessageToProto(req))
 	return err
 }
 
