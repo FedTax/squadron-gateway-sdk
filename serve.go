@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/mlund01/squadron-gateway-sdk/proto"
 )
@@ -137,11 +139,12 @@ func (s *gatewayServer) OnNotification(ctx context.Context, p *pb.NotificationRe
 	return &pb.Empty{}, nil
 }
 
-func (s *gatewayServer) PostMessage(ctx context.Context, p *pb.PostMessageRequest) (*pb.Empty, error) {
-	if err := s.impl.PostMessage(ctx, postMessageFromProto(p)); err != nil {
+func (s *gatewayServer) PostMessage(ctx context.Context, p *pb.PostMessageRequest) (*pb.PostMessageResponse, error) {
+	resp, err := s.impl.PostMessage(ctx, postMessageFromProto(p))
+	if err != nil {
 		return nil, err
 	}
-	return &pb.Empty{}, nil
+	return &pb.PostMessageResponse{MessageId: resp.MessageID}, nil
 }
 
 func (s *gatewayServer) MessageToolSpec(ctx context.Context, _ *pb.Empty) (*pb.MessageToolSpecResponse, error) {
@@ -150,6 +153,28 @@ func (s *gatewayServer) MessageToolSpec(ctx context.Context, _ *pb.Empty) (*pb.M
 		return nil, err
 	}
 	return messageToolSpecToProto(spec), nil
+}
+
+func (s *gatewayServer) Link(ctx context.Context, p *pb.LinkRequest) (*pb.Empty, error) {
+	linker, ok := s.impl.(Linker)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this gateway doesn't link runs to requests")
+	}
+	if err := linker.Link(ctx, linkFromProto(p)); err != nil {
+		return nil, err
+	}
+	return &pb.Empty{}, nil
+}
+
+func (s *gatewayServer) EditMessage(ctx context.Context, p *pb.EditMessageRequest) (*pb.Empty, error) {
+	editor, ok := s.impl.(Editor)
+	if !ok {
+		return nil, status.Error(codes.Unimplemented, "this gateway doesn't edit messages")
+	}
+	if err := editor.EditMessage(ctx, editMessageFromProto(p)); err != nil {
+		return nil, err
+	}
+	return &pb.Empty{}, nil
 }
 
 func (s *gatewayServer) Shutdown(ctx context.Context, _ *pb.Empty) (*pb.Empty, error) {

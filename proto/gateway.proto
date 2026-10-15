@@ -34,8 +34,9 @@ service GatewayService {
     // is the raw JSON the agent produced for the tool, matching the schema the
     // gateway advertised via MessageToolSpec — the gateway owns the message
     // contract (text, formatting, channel override, attachments, …) and parses
-    // the payload itself.
-    rpc PostMessage(PostMessageRequest) returns (Empty);
+    // the payload itself. The response carries the posted message's ID, so
+    // the agent can edit that message later with EditMessage.
+    rpc PostMessage(PostMessageRequest) returns (PostMessageResponse);
 
     // MessageToolSpec returns how the builtins.gateway.post tool should be
     // presented to the LLM for this gateway: a description (formatting docs)
@@ -43,6 +44,21 @@ service GatewayService {
     // it once the gateway is up and builds the tool from it, so each gateway
     // can advertise exactly the rich-message shape it accepts.
     rpc MessageToolSpec(Empty) returns (MessageToolSpecResponse);
+
+    // Link joins the calling mission run to the request the gateway already
+    // holds under key, before the run sends anything. Squadron exposes this
+    // to agents via the builtins.gateway.link tool. Without it, a run whose
+    // first message is a question or notification has no key to join by, so
+    // the gateway can only open a separate request for it. Gateways that
+    // don't group messages by request may leave it unimplemented.
+    rpc Link(LinkRequest) returns (Empty);
+
+    // EditMessage replaces the content of a message the gateway posted,
+    // identified by the ID PostMessage returned. Squadron exposes this to
+    // agents via the builtins.gateway.edit tool, so a run can update a post
+    // (e.g. a status line) instead of posting it again. Gateways that can't
+    // edit messages may leave it unimplemented.
+    rpc EditMessage(EditMessageRequest) returns (Empty);
 
     // Shutdown asks the gateway to release external resources cleanly
     // before squadron tears down the subprocess.
@@ -56,6 +72,38 @@ service GatewayService {
 message PostMessageRequest {
     string payload = 1;
     repeated FileAttachment attachments = 2;
+    // The mission run and task whose agent posted, so a gateway can relate
+    // the post to that run's questions and notifications. Empty outside a
+    // mission.
+    string mission_id = 3;
+    string task_id = 4;
+}
+
+// PostMessageResponse identifies the message a post created or replaced, in
+// the gateway's own ID format. Empty when the gateway doesn't identify
+// messages.
+message PostMessageResponse {
+    string message_id = 1;
+}
+
+// EditMessageRequest replaces the message message_id names with payload,
+// which has the same gateway-schema shape as a post's payload. mission_id and
+// task_id identify the calling run, as on PostMessageRequest.
+message EditMessageRequest {
+    string message_id = 1;
+    string payload = 2;
+    string mission_id = 3;
+    string task_id = 4;
+    repeated FileAttachment attachments = 5;
+}
+
+// LinkRequest names the request a mission run belongs to. key is the
+// gateway-defined request key the agent passed (e.g. a ticket key);
+// mission_id and task_id identify the calling run, as on PostMessageRequest.
+message LinkRequest {
+    string key = 1;
+    string mission_id = 2;
+    string task_id = 3;
 }
 
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that

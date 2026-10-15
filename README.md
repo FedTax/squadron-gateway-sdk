@@ -20,6 +20,9 @@ channel:
   description + a JSON Schema squadron shows the LLM, and `PostMessage` receives
   the raw JSON the agent produced for that schema, so each gateway defines
   exactly the rich-message shape it accepts (text, embeds/blocks, attachments).
+  `PostMessage` returns the posted message's ID; a gateway that also
+  implements the optional `Editor` interface can replace that message when
+  the agent calls `builtins.gateway.edit` with it.
 - **Gateway → Squadron**: pulls / mutates state (`ListHumanInputs`,
   `ResolveHumanInput`, …) so user actions in the external system flow
   back to squadron.
@@ -63,11 +66,12 @@ func (g *myGateway) OnNotification(ctx context.Context, rec gateway.Notification
     return nil
 }
 
-func (g *myGateway) PostMessage(ctx context.Context, req gateway.PostMessageRequest) error {
+func (g *myGateway) PostMessage(ctx context.Context, req gateway.PostMessageRequest) (gateway.PostMessageResponse, error) {
     // req.Payload is the raw JSON the agent produced for MessageToolSpec's
-    // schema — parse and render it however this gateway sees fit
-    g.send(req.Payload)
-    return nil
+    // schema — parse and render it however this gateway sees fit. Return the
+    // message's ID so the agent can pass it to builtins.gateway.edit.
+    id := g.send(req.Payload)
+    return gateway.PostMessageResponse{MessageID: id}, nil
 }
 
 func (g *myGateway) MessageToolSpec(ctx context.Context) (gateway.MessageToolSpec, error) {

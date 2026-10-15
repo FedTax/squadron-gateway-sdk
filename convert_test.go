@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -261,5 +262,39 @@ func TestMessageToolSpecFromProtoNilIsSafe(t *testing.T) {
 	got := messageToolSpecFromProto(nil)
 	if got != (MessageToolSpec{}) {
 		t.Errorf("nil response should yield zero-value MessageToolSpec, got %+v", got)
+	}
+}
+
+func TestPostMessageRoundTripCarriesMissionContext(t *testing.T) {
+	in := PostMessageRequest{Payload: `{"text":"hi"}`, MissionID: "m-1", TaskID: "t-1"}
+	got := postMessageFromProto(postMessageToProto(in))
+	if got.MissionID != "m-1" || got.TaskID != "t-1" || got.Payload != in.Payload {
+		t.Errorf("got %+v", got)
+	}
+}
+
+func TestLinkRoundTripCarriesKeyAndRun(t *testing.T) {
+	original := LinkRequest{Key: "DEV-123", MissionID: "run-1", TaskID: "task-1"}
+	if got := linkFromProto(linkToProto(original)); got != original {
+		t.Errorf("got %+v, want %+v", got, original)
+	}
+	if got := linkFromProto(nil); got != (LinkRequest{}) {
+		t.Errorf("nil request should yield zero-value LinkRequest, got %+v", got)
+	}
+}
+
+func TestEditMessageRoundTripCarriesIDPayloadAttachmentsAndRun(t *testing.T) {
+	original := EditMessageRequest{
+		MessageID:   "C1/1700000000.000001",
+		Payload:     `{"text":"done"}`,
+		Attachments: []FileAttachment{{Filename: "report.txt", MimeType: "text/plain", Content: []byte("hello")}},
+		MissionID:   "run-1",
+		TaskID:      "task-1",
+	}
+	if got := editMessageFromProto(editMessageToProto(original)); !reflect.DeepEqual(got, original) {
+		t.Errorf("got %+v, want %+v", got, original)
+	}
+	if got := editMessageFromProto(nil); !reflect.DeepEqual(got, EditMessageRequest{}) {
+		t.Errorf("nil request should yield zero-value EditMessageRequest, got %+v", got)
 	}
 }

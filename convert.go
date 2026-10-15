@@ -87,30 +87,41 @@ func notificationFromProto(p *pb.NotificationRecord) NotificationRecord {
 }
 
 func postMessageToProto(r PostMessageRequest) *pb.PostMessageRequest {
-	out := &pb.PostMessageRequest{Payload: r.Payload}
-	for _, a := range r.Attachments {
-		out.Attachments = append(out.Attachments, &pb.FileAttachment{
-			Filename: a.Filename,
-			MimeType: a.MimeType,
-			Content:  a.Content,
-		})
-	}
-	return out
+	return &pb.PostMessageRequest{Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), MissionId: r.MissionID, TaskId: r.TaskID}
 }
 
 func postMessageFromProto(p *pb.PostMessageRequest) PostMessageRequest {
 	if p == nil {
 		return PostMessageRequest{}
 	}
-	req := PostMessageRequest{Payload: p.Payload}
-	for _, a := range p.Attachments {
-		req.Attachments = append(req.Attachments, FileAttachment{
-			Filename: a.Filename,
-			MimeType: a.MimeType,
-			Content:  a.Content,
-		})
+	return PostMessageRequest{Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), MissionID: p.MissionId, TaskID: p.TaskId}
+}
+
+func editMessageToProto(r EditMessageRequest) *pb.EditMessageRequest {
+	return &pb.EditMessageRequest{MessageId: r.MessageID, Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), MissionId: r.MissionID, TaskId: r.TaskID}
+}
+
+func editMessageFromProto(p *pb.EditMessageRequest) EditMessageRequest {
+	if p == nil {
+		return EditMessageRequest{}
 	}
-	return req
+	return EditMessageRequest{MessageID: p.MessageId, Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), MissionID: p.MissionId, TaskID: p.TaskId}
+}
+
+func attachmentsToProto(in []FileAttachment) []*pb.FileAttachment {
+	var out []*pb.FileAttachment
+	for _, a := range in {
+		out = append(out, &pb.FileAttachment{Filename: a.Filename, MimeType: a.MimeType, Content: a.Content})
+	}
+	return out
+}
+
+func attachmentsFromProto(in []*pb.FileAttachment) []FileAttachment {
+	var out []FileAttachment
+	for _, a := range in {
+		out = append(out, FileAttachment{Filename: a.Filename, MimeType: a.MimeType, Content: a.Content})
+	}
+	return out
 }
 
 func messageToolSpecToProto(s MessageToolSpec) *pb.MessageToolSpecResponse {
@@ -165,4 +176,15 @@ func parseTime(s string) time.Time {
 		return time.Time{}
 	}
 	return t.UTC()
+}
+
+func linkToProto(r LinkRequest) *pb.LinkRequest {
+	return &pb.LinkRequest{Key: r.Key, MissionId: r.MissionID, TaskId: r.TaskID}
+}
+
+func linkFromProto(p *pb.LinkRequest) LinkRequest {
+	if p == nil {
+		return LinkRequest{}
+	}
+	return LinkRequest{Key: p.Key, MissionID: p.MissionId, TaskID: p.TaskId}
 }
