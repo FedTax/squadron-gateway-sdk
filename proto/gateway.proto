@@ -94,6 +94,7 @@ message EditMessageRequest {
     string payload = 2;
     string mission_id = 3;
     string task_id = 4;
+    repeated FileAttachment attachments = 5;
 }
 
 // LinkRequest names the request a mission run belongs to. key is the

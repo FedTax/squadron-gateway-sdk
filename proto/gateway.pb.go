@@ -152,6 +152,7 @@ type EditMessageRequest struct {
 	Payload       string                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
 	MissionId     string                 `protobuf:"bytes,3,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
 	TaskId        string                 `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Attachments   []*FileAttachment      `protobuf:"bytes,5,rep,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -212,6 +213,13 @@ func (x *EditMessageRequest) GetTaskId() string {
 		return x.TaskId
 	}
 	return ""
+}
+
+func (x *EditMessageRequest) GetAttachments() []*FileAttachment {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
 }
 
 // LinkRequest names the request a mission run belongs to. key is the
@@ -1090,14 +1098,15 @@ const file_gateway_proto_rawDesc = "" +
 	"\atask_id\x18\x04 \x01(\tR\x06taskId\"4\n" +
 	"\x13PostMessageResponse\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\"\x85\x01\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"\xc0\x01\n" +
 	"\x12EditMessageRequest\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x1d\n" +
 	"\n" +
 	"mission_id\x18\x03 \x01(\tR\tmissionId\x12\x17\n" +
-	"\atask_id\x18\x04 \x01(\tR\x06taskId\"W\n" +
+	"\atask_id\x18\x04 \x01(\tR\x06taskId\x129\n" +
+	"\vattachments\x18\x05 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\"W\n" +
 	"\vLinkRequest\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1d\n" +
 	"\n" +
@@ -1219,36 +1228,37 @@ var file_gateway_proto_goTypes = []any{
 }
 var file_gateway_proto_depIdxs = []int32{
 	4,  // 0: gateway.PostMessageRequest.attachments:type_name -> gateway.FileAttachment
-	15, // 1: gateway.ConfigureRequest.settings:type_name -> gateway.ConfigureRequest.SettingsEntry
-	9,  // 2: gateway.HumanInputList.items:type_name -> gateway.HumanInputRecord
-	9,  // 3: gateway.ResolveHumanInputResponse.record:type_name -> gateway.HumanInputRecord
-	7,  // 4: gateway.GatewayService.Configure:input_type -> gateway.ConfigureRequest
-	9,  // 5: gateway.GatewayService.OnHumanInputRequested:input_type -> gateway.HumanInputRecord
-	9,  // 6: gateway.GatewayService.OnHumanInputResolved:input_type -> gateway.HumanInputRecord
-	14, // 7: gateway.GatewayService.OnNotification:input_type -> gateway.NotificationRecord
-	0,  // 8: gateway.GatewayService.PostMessage:input_type -> gateway.PostMessageRequest
-	6,  // 9: gateway.GatewayService.MessageToolSpec:input_type -> gateway.Empty
-	3,  // 10: gateway.GatewayService.Link:input_type -> gateway.LinkRequest
-	2,  // 11: gateway.GatewayService.EditMessage:input_type -> gateway.EditMessageRequest
-	6,  // 12: gateway.GatewayService.Shutdown:input_type -> gateway.Empty
-	10, // 13: gateway.SquadronService.ListHumanInputs:input_type -> gateway.HumanInputFilter
-	12, // 14: gateway.SquadronService.ResolveHumanInput:input_type -> gateway.ResolveHumanInputRequest
-	8,  // 15: gateway.GatewayService.Configure:output_type -> gateway.ConfigureResponse
-	6,  // 16: gateway.GatewayService.OnHumanInputRequested:output_type -> gateway.Empty
-	6,  // 17: gateway.GatewayService.OnHumanInputResolved:output_type -> gateway.Empty
-	6,  // 18: gateway.GatewayService.OnNotification:output_type -> gateway.Empty
-	1,  // 19: gateway.GatewayService.PostMessage:output_type -> gateway.PostMessageResponse
-	5,  // 20: gateway.GatewayService.MessageToolSpec:output_type -> gateway.MessageToolSpecResponse
-	6,  // 21: gateway.GatewayService.Link:output_type -> gateway.Empty
-	6,  // 22: gateway.GatewayService.EditMessage:output_type -> gateway.Empty
-	6,  // 23: gateway.GatewayService.Shutdown:output_type -> gateway.Empty
-	11, // 24: gateway.SquadronService.ListHumanInputs:output_type -> gateway.HumanInputList
-	13, // 25: gateway.SquadronService.ResolveHumanInput:output_type -> gateway.ResolveHumanInputResponse
-	15, // [15:26] is the sub-list for method output_type
-	4,  // [4:15] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	4,  // 1: gateway.EditMessageRequest.attachments:type_name -> gateway.FileAttachment
+	15, // 2: gateway.ConfigureRequest.settings:type_name -> gateway.ConfigureRequest.SettingsEntry
+	9,  // 3: gateway.HumanInputList.items:type_name -> gateway.HumanInputRecord
+	9,  // 4: gateway.ResolveHumanInputResponse.record:type_name -> gateway.HumanInputRecord
+	7,  // 5: gateway.GatewayService.Configure:input_type -> gateway.ConfigureRequest
+	9,  // 6: gateway.GatewayService.OnHumanInputRequested:input_type -> gateway.HumanInputRecord
+	9,  // 7: gateway.GatewayService.OnHumanInputResolved:input_type -> gateway.HumanInputRecord
+	14, // 8: gateway.GatewayService.OnNotification:input_type -> gateway.NotificationRecord
+	0,  // 9: gateway.GatewayService.PostMessage:input_type -> gateway.PostMessageRequest
+	6,  // 10: gateway.GatewayService.MessageToolSpec:input_type -> gateway.Empty
+	3,  // 11: gateway.GatewayService.Link:input_type -> gateway.LinkRequest
+	2,  // 12: gateway.GatewayService.EditMessage:input_type -> gateway.EditMessageRequest
+	6,  // 13: gateway.GatewayService.Shutdown:input_type -> gateway.Empty
+	10, // 14: gateway.SquadronService.ListHumanInputs:input_type -> gateway.HumanInputFilter
+	12, // 15: gateway.SquadronService.ResolveHumanInput:input_type -> gateway.ResolveHumanInputRequest
+	8,  // 16: gateway.GatewayService.Configure:output_type -> gateway.ConfigureResponse
+	6,  // 17: gateway.GatewayService.OnHumanInputRequested:output_type -> gateway.Empty
+	6,  // 18: gateway.GatewayService.OnHumanInputResolved:output_type -> gateway.Empty
+	6,  // 19: gateway.GatewayService.OnNotification:output_type -> gateway.Empty
+	1,  // 20: gateway.GatewayService.PostMessage:output_type -> gateway.PostMessageResponse
+	5,  // 21: gateway.GatewayService.MessageToolSpec:output_type -> gateway.MessageToolSpecResponse
+	6,  // 22: gateway.GatewayService.Link:output_type -> gateway.Empty
+	6,  // 23: gateway.GatewayService.EditMessage:output_type -> gateway.Empty
+	6,  // 24: gateway.GatewayService.Shutdown:output_type -> gateway.Empty
+	11, // 25: gateway.SquadronService.ListHumanInputs:output_type -> gateway.HumanInputList
+	13, // 26: gateway.SquadronService.ResolveHumanInput:output_type -> gateway.ResolveHumanInputResponse
+	16, // [16:27] is the sub-list for method output_type
+	5,  // [5:16] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_gateway_proto_init() }

@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -282,12 +283,18 @@ func TestLinkRoundTripCarriesKeyAndRun(t *testing.T) {
 	}
 }
 
-func TestEditMessageRoundTripCarriesIDPayloadAndRun(t *testing.T) {
-	original := EditMessageRequest{MessageID: "C1/1700000000.000001", Payload: `{"text":"done"}`, MissionID: "run-1", TaskID: "task-1"}
-	if got := editMessageFromProto(editMessageToProto(original)); got != original {
+func TestEditMessageRoundTripCarriesIDPayloadAttachmentsAndRun(t *testing.T) {
+	original := EditMessageRequest{
+		MessageID:   "C1/1700000000.000001",
+		Payload:     `{"text":"done"}`,
+		Attachments: []FileAttachment{{Filename: "report.txt", MimeType: "text/plain", Content: []byte("hello")}},
+		MissionID:   "run-1",
+		TaskID:      "task-1",
+	}
+	if got := editMessageFromProto(editMessageToProto(original)); !reflect.DeepEqual(got, original) {
 		t.Errorf("got %+v, want %+v", got, original)
 	}
-	if got := editMessageFromProto(nil); got != (EditMessageRequest{}) {
+	if got := editMessageFromProto(nil); !reflect.DeepEqual(got, EditMessageRequest{}) {
 		t.Errorf("nil request should yield zero-value EditMessageRequest, got %+v", got)
 	}
 }

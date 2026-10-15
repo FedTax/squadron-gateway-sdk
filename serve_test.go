@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"google.golang.org/grpc/codes"
@@ -45,10 +46,10 @@ func TestEditMessageWithoutEditorIsUnimplemented(t *testing.T) {
 func TestEditMessageReachesTheEditor(t *testing.T) {
 	g := &editingGateway{}
 	s := &gatewayServer{impl: g}
-	if _, err := s.EditMessage(context.Background(), &pb.EditMessageRequest{MessageId: "C1/1", Payload: `{"text":"done"}`, MissionId: "run-1"}); err != nil {
+	if _, err := s.EditMessage(context.Background(), &pb.EditMessageRequest{MessageId: "C1/1", Payload: `{"text":"done"}`, MissionId: "run-1", Attachments: []*pb.FileAttachment{{Filename: "report.txt", Content: []byte("hello")}}}); err != nil {
 		t.Fatal(err)
 	}
-	if want := (EditMessageRequest{MessageID: "C1/1", Payload: `{"text":"done"}`, MissionID: "run-1"}); g.edited != want {
+	if want := (EditMessageRequest{MessageID: "C1/1", Payload: `{"text":"done"}`, Attachments: []FileAttachment{{Filename: "report.txt", Content: []byte("hello")}}, MissionID: "run-1"}); !reflect.DeepEqual(g.edited, want) {
 		t.Errorf("got %+v, want %+v", g.edited, want)
 	}
 }

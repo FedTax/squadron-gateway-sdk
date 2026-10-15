@@ -141,10 +141,11 @@ type PostMessageResponse struct {
 // PostMessageResponse) with Payload, which has the same gateway-schema shape
 // as a post's payload.
 type EditMessageRequest struct {
-	MessageID string
-	Payload   string
-	MissionID string
-	TaskID    string
+	MessageID   string
+	Payload     string
+	Attachments []FileAttachment
+	MissionID   string
+	TaskID      string
 }
 
 // Editor is implemented by gateways that can change a message after posting
