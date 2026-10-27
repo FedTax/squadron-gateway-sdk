@@ -23,6 +23,7 @@ func TestRecordRoundTripPreservesEveryField(t *testing.T) {
 	original := HumanInputRecord{
 		ID:                "id-1",
 		MissionID:         "m-1",
+		ThreadID:          "chain-1",
 		MissionName:       "research",
 		TaskID:            "t-1",
 		TaskName:          "scrape",
@@ -63,6 +64,7 @@ func TestRecordRoundTripPreservesEveryField(t *testing.T) {
 	}{
 		{"ID", got.ID, original.ID},
 		{"MissionID", got.MissionID, original.MissionID},
+		{"ThreadID", got.ThreadID, original.ThreadID},
 		{"MissionName", got.MissionName, original.MissionName},
 		{"TaskID", got.TaskID, original.TaskID},
 		{"TaskName", got.TaskName, original.TaskName},
@@ -165,6 +167,7 @@ func TestRecordFromProtoNilIsSafe(t *testing.T) {
 func TestNotificationRoundTripPreservesEveryField(t *testing.T) {
 	occurred := time.Now().UTC().Truncate(time.Nanosecond)
 	original := NotificationRecord{
+		ThreadID:    "chain-1",
 		MissionID:   "m-1",
 		MissionName: "critical",
 		Event:       "mission_failed",
@@ -266,20 +269,11 @@ func TestMessageToolSpecFromProtoNilIsSafe(t *testing.T) {
 }
 
 func TestPostMessageRoundTripCarriesMissionContext(t *testing.T) {
-	in := PostMessageRequest{Payload: `{"text":"hi"}`, MissionID: "m-1", TaskID: "t-1"}
+	in := PostMessageRequest{Payload: `{"text":"hi"}`, MissionID: "m-1",
+		ThreadID: "chain-1", TaskID: "t-1"}
 	got := postMessageFromProto(postMessageToProto(in))
-	if got.MissionID != "m-1" || got.TaskID != "t-1" || got.Payload != in.Payload {
+	if got.MissionID != "m-1" || got.ThreadID != "chain-1" || got.TaskID != "t-1" || got.Payload != in.Payload {
 		t.Errorf("got %+v", got)
-	}
-}
-
-func TestLinkRoundTripCarriesKeyAndRun(t *testing.T) {
-	original := LinkRequest{Key: "DEV-123", MissionID: "run-1", TaskID: "task-1"}
-	if got := linkFromProto(linkToProto(original)); got != original {
-		t.Errorf("got %+v, want %+v", got, original)
-	}
-	if got := linkFromProto(nil); got != (LinkRequest{}) {
-		t.Errorf("nil request should yield zero-value LinkRequest, got %+v", got)
 	}
 }
 
@@ -289,6 +283,7 @@ func TestEditMessageRoundTripCarriesIDPayloadAttachmentsAndRun(t *testing.T) {
 		Payload:     `{"text":"done"}`,
 		Attachments: []FileAttachment{{Filename: "report.txt", MimeType: "text/plain", Content: []byte("hello")}},
 		MissionID:   "run-1",
+		ThreadID:    "chain-1",
 		TaskID:      "task-1",
 	}
 	if got := editMessageFromProto(editMessageToProto(original)); !reflect.DeepEqual(got, original) {

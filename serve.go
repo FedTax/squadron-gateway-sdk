@@ -155,17 +155,6 @@ func (s *gatewayServer) MessageToolSpec(ctx context.Context, _ *pb.Empty) (*pb.M
 	return messageToolSpecToProto(spec), nil
 }
 
-func (s *gatewayServer) Link(ctx context.Context, p *pb.LinkRequest) (*pb.Empty, error) {
-	linker, ok := s.impl.(Linker)
-	if !ok {
-		return nil, status.Error(codes.Unimplemented, "this gateway doesn't link runs to requests")
-	}
-	if err := linker.Link(ctx, linkFromProto(p)); err != nil {
-		return nil, err
-	}
-	return &pb.Empty{}, nil
-}
-
 func (s *gatewayServer) EditMessage(ctx context.Context, p *pb.EditMessageRequest) (*pb.Empty, error) {
 	editor, ok := s.impl.(Editor)
 	if !ok {

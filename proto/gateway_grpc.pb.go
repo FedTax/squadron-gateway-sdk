@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v4.24.3
-// source: gateway.proto
+// source: proto/gateway.proto
 
 package proto
 
@@ -25,7 +25,6 @@ const (
 	GatewayService_OnNotification_FullMethodName        = "/gateway.GatewayService/OnNotification"
 	GatewayService_PostMessage_FullMethodName           = "/gateway.GatewayService/PostMessage"
 	GatewayService_MessageToolSpec_FullMethodName       = "/gateway.GatewayService/MessageToolSpec"
-	GatewayService_Link_FullMethodName                  = "/gateway.GatewayService/Link"
 	GatewayService_EditMessage_FullMethodName           = "/gateway.GatewayService/EditMessage"
 	GatewayService_Shutdown_FullMethodName              = "/gateway.GatewayService/Shutdown"
 )
@@ -69,13 +68,6 @@ type GatewayServiceClient interface {
 	// it once the gateway is up and builds the tool from it, so each gateway
 	// can advertise exactly the rich-message shape it accepts.
 	MessageToolSpec(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MessageToolSpecResponse, error)
-	// Link joins the calling mission run to the request the gateway already
-	// holds under key, before the run sends anything. Squadron exposes this
-	// to agents via the builtins.gateway.link tool. Without it, a run whose
-	// first message is a question or notification has no key to join by, so
-	// the gateway can only open a separate request for it. Gateways that
-	// don't group messages by request may leave it unimplemented.
-	Link(ctx context.Context, in *LinkRequest, opts ...grpc.CallOption) (*Empty, error)
 	// EditMessage replaces the content of a message the gateway posted,
 	// identified by the ID PostMessage returned. Squadron exposes this to
 	// agents via the builtins.gateway.edit tool, so a run can update a post
@@ -155,16 +147,6 @@ func (c *gatewayServiceClient) MessageToolSpec(ctx context.Context, in *Empty, o
 	return out, nil
 }
 
-func (c *gatewayServiceClient) Link(ctx context.Context, in *LinkRequest, opts ...grpc.CallOption) (*Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, GatewayService_Link_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *gatewayServiceClient) EditMessage(ctx context.Context, in *EditMessageRequest, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
@@ -224,13 +206,6 @@ type GatewayServiceServer interface {
 	// it once the gateway is up and builds the tool from it, so each gateway
 	// can advertise exactly the rich-message shape it accepts.
 	MessageToolSpec(context.Context, *Empty) (*MessageToolSpecResponse, error)
-	// Link joins the calling mission run to the request the gateway already
-	// holds under key, before the run sends anything. Squadron exposes this
-	// to agents via the builtins.gateway.link tool. Without it, a run whose
-	// first message is a question or notification has no key to join by, so
-	// the gateway can only open a separate request for it. Gateways that
-	// don't group messages by request may leave it unimplemented.
-	Link(context.Context, *LinkRequest) (*Empty, error)
 	// EditMessage replaces the content of a message the gateway posted,
 	// identified by the ID PostMessage returned. Squadron exposes this to
 	// agents via the builtins.gateway.edit tool, so a run can update a post
@@ -267,9 +242,6 @@ func (UnimplementedGatewayServiceServer) PostMessage(context.Context, *PostMessa
 }
 func (UnimplementedGatewayServiceServer) MessageToolSpec(context.Context, *Empty) (*MessageToolSpecResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method MessageToolSpec not implemented")
-}
-func (UnimplementedGatewayServiceServer) Link(context.Context, *LinkRequest) (*Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedGatewayServiceServer) EditMessage(context.Context, *EditMessageRequest) (*Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method EditMessage not implemented")
@@ -406,24 +378,6 @@ func _GatewayService_MessageToolSpec_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GatewayService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GatewayServiceServer).Link(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GatewayService_Link_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GatewayServiceServer).Link(ctx, req.(*LinkRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _GatewayService_EditMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EditMessageRequest)
 	if err := dec(in); err != nil {
@@ -492,10 +446,6 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GatewayService_MessageToolSpec_Handler,
 		},
 		{
-			MethodName: "Link",
-			Handler:    _GatewayService_Link_Handler,
-		},
-		{
 			MethodName: "EditMessage",
 			Handler:    _GatewayService_EditMessage_Handler,
 		},
@@ -505,7 +455,7 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "gateway.proto",
+	Metadata: "proto/gateway.proto",
 }
 
 const (
@@ -667,5 +617,5 @@ var SquadronService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "gateway.proto",
+	Metadata: "proto/gateway.proto",
 }

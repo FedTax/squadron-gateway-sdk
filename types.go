@@ -59,6 +59,9 @@ const (
 // Go interface for convenience. Empty timestamps decode to the zero
 // time.Time.
 type HumanInputRecord struct {
+	// ThreadID identifies a mission thread: a chain of related mission runs
+	// sharing a conversation. MissionID still identifies the individual run.
+	ThreadID          string
 	ID                string
 	MissionID         string
 	MissionName       string
@@ -85,6 +88,9 @@ type HumanInputRecord struct {
 // pushed to the gateway. Notifications are one-way and informational —
 // unlike human-input requests there is nothing for the user to resolve.
 type NotificationRecord struct {
+	// ThreadID identifies a mission thread: a chain of related mission runs
+	// sharing a conversation. MissionID still identifies the individual run.
+	ThreadID    string
 	MissionID   string
 	MissionName string
 	// Event is one of "mission_completed" or "mission_failed".
@@ -104,30 +110,15 @@ type NotificationRecord struct {
 // layout) plus any squadron-resolved file attachments. The gateway parses
 // Payload and uploads each attachment's bytes directly — it never fetches a URL.
 type PostMessageRequest struct {
+	// ThreadID identifies a mission thread: a chain of related mission runs
+	// sharing a conversation. MissionID still identifies the individual run.
+	ThreadID    string
 	Payload     string
 	Attachments []FileAttachment
-	// MissionID and TaskID identify the run and task whose agent posted, so a
-	// gateway can relate the post to that run's questions and notifications.
+	// MissionID and TaskID attribute the post to its originating run and task.
 	// Empty when the post wasn't made inside a mission.
 	MissionID string
 	TaskID    string
-}
-
-// LinkRequest asks the gateway to join a mission run to the request it holds
-// under Key (a gateway-defined request key, e.g. a ticket key), so the run's
-// questions and notifications reach that request even when the run never
-// posts first.
-type LinkRequest struct {
-	Key       string
-	MissionID string
-	TaskID    string
-}
-
-// Linker is implemented by gateways that group a run's messages by request.
-// It's separate from Gateway so gateways without requests needn't add it;
-// squadron's builtins.gateway.link reports an error against those.
-type Linker interface {
-	Link(ctx context.Context, req LinkRequest) error
 }
 
 // PostMessageResponse identifies the message a post created or replaced, in
@@ -141,6 +132,9 @@ type PostMessageResponse struct {
 // PostMessageResponse) with Payload, which has the same gateway-schema shape
 // as a post's payload.
 type EditMessageRequest struct {
+	// ThreadID identifies a mission thread: a chain of related mission runs
+	// sharing a conversation. MissionID still identifies the individual run.
+	ThreadID    string
 	MessageID   string
 	Payload     string
 	Attachments []FileAttachment

@@ -16,6 +16,7 @@ func recordToProto(r HumanInputRecord) *pb.HumanInputRecord {
 	return &pb.HumanInputRecord{
 		Id:                r.ID,
 		MissionId:         r.MissionID,
+		ThreadId:          r.ThreadID,
 		MissionName:       r.MissionName,
 		TaskId:            r.TaskID,
 		TaskName:          r.TaskName,
@@ -40,6 +41,7 @@ func recordFromProto(p *pb.HumanInputRecord) HumanInputRecord {
 	return HumanInputRecord{
 		ID:                p.Id,
 		MissionID:         p.MissionId,
+		ThreadID:          p.ThreadId,
 		MissionName:       p.MissionName,
 		TaskID:            p.TaskId,
 		TaskName:          p.TaskName,
@@ -60,6 +62,7 @@ func recordFromProto(p *pb.HumanInputRecord) HumanInputRecord {
 func notificationToProto(r NotificationRecord) *pb.NotificationRecord {
 	return &pb.NotificationRecord{
 		MissionId:   r.MissionID,
+		ThreadId:    r.ThreadID,
 		MissionName: r.MissionName,
 		Event:       r.Event,
 		Title:       r.Title,
@@ -76,6 +79,7 @@ func notificationFromProto(p *pb.NotificationRecord) NotificationRecord {
 	}
 	return NotificationRecord{
 		MissionID:   p.MissionId,
+		ThreadID:    p.ThreadId,
 		MissionName: p.MissionName,
 		Event:       p.Event,
 		Title:       p.Title,
@@ -87,25 +91,25 @@ func notificationFromProto(p *pb.NotificationRecord) NotificationRecord {
 }
 
 func postMessageToProto(r PostMessageRequest) *pb.PostMessageRequest {
-	return &pb.PostMessageRequest{Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), MissionId: r.MissionID, TaskId: r.TaskID}
+	return &pb.PostMessageRequest{Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), ThreadId: r.ThreadID, MissionId: r.MissionID, TaskId: r.TaskID}
 }
 
 func postMessageFromProto(p *pb.PostMessageRequest) PostMessageRequest {
 	if p == nil {
 		return PostMessageRequest{}
 	}
-	return PostMessageRequest{Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), MissionID: p.MissionId, TaskID: p.TaskId}
+	return PostMessageRequest{Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), ThreadID: p.ThreadId, MissionID: p.MissionId, TaskID: p.TaskId}
 }
 
 func editMessageToProto(r EditMessageRequest) *pb.EditMessageRequest {
-	return &pb.EditMessageRequest{MessageId: r.MessageID, Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), MissionId: r.MissionID, TaskId: r.TaskID}
+	return &pb.EditMessageRequest{MessageId: r.MessageID, Payload: r.Payload, Attachments: attachmentsToProto(r.Attachments), ThreadId: r.ThreadID, MissionId: r.MissionID, TaskId: r.TaskID}
 }
 
 func editMessageFromProto(p *pb.EditMessageRequest) EditMessageRequest {
 	if p == nil {
 		return EditMessageRequest{}
 	}
-	return EditMessageRequest{MessageID: p.MessageId, Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), MissionID: p.MissionId, TaskID: p.TaskId}
+	return EditMessageRequest{MessageID: p.MessageId, Payload: p.Payload, Attachments: attachmentsFromProto(p.Attachments), ThreadID: p.ThreadId, MissionID: p.MissionId, TaskID: p.TaskId}
 }
 
 func attachmentsToProto(in []FileAttachment) []*pb.FileAttachment {
@@ -176,15 +180,4 @@ func parseTime(s string) time.Time {
 		return time.Time{}
 	}
 	return t.UTC()
-}
-
-func linkToProto(r LinkRequest) *pb.LinkRequest {
-	return &pb.LinkRequest{Key: r.Key, MissionId: r.MissionID, TaskId: r.TaskID}
-}
-
-func linkFromProto(p *pb.LinkRequest) LinkRequest {
-	if p == nil {
-		return LinkRequest{}
-	}
-	return LinkRequest{Key: p.Key, MissionID: p.MissionId, TaskID: p.TaskId}
 }

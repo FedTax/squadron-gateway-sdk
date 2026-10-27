@@ -136,13 +136,6 @@ func (g *GRPCGatewayClient) MessageToolSpec(ctx context.Context) (MessageToolSpe
 	return messageToolSpecFromProto(resp), nil
 }
 
-// Link asks the gateway to join a run to an existing request. A gateway
-// without requests returns codes.Unimplemented.
-func (g *GRPCGatewayClient) Link(ctx context.Context, req LinkRequest) error {
-	_, err := g.client.Link(ctx, linkToProto(req))
-	return err
-}
-
 // EditMessage asks the gateway to replace a message it posted. A gateway
 // that can't edit messages returns codes.Unimplemented.
 func (g *GRPCGatewayClient) EditMessage(ctx context.Context, req EditMessageRequest) error {

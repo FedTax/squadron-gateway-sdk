@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v4.24.3
-// source: gateway.proto
+// source: proto/gateway.proto
 
 package proto
 
@@ -26,12 +26,12 @@ const (
 // file attachments. The gateway parses payload and uploads each attachment's
 // bytes directly — it never fetches a URL.
 type PostMessageRequest struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Payload     string                 `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
-	Attachments []*FileAttachment      `protobuf:"bytes,2,rep,name=attachments,proto3" json:"attachments,omitempty"`
-	// The mission run and task whose agent posted, so a gateway can relate
-	// the post to that run's questions and notifications. Empty outside a
-	// mission.
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	ThreadId    string            `protobuf:"bytes,5,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	Payload     string            `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
+	Attachments []*FileAttachment `protobuf:"bytes,2,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	// The individual run and task that authored the post. Empty outside a mission.
 	MissionId     string `protobuf:"bytes,3,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
 	TaskId        string `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -40,7 +40,7 @@ type PostMessageRequest struct {
 
 func (x *PostMessageRequest) Reset() {
 	*x = PostMessageRequest{}
-	mi := &file_gateway_proto_msgTypes[0]
+	mi := &file_proto_gateway_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -52,7 +52,7 @@ func (x *PostMessageRequest) String() string {
 func (*PostMessageRequest) ProtoMessage() {}
 
 func (x *PostMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[0]
+	mi := &file_proto_gateway_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -65,7 +65,14 @@ func (x *PostMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostMessageRequest.ProtoReflect.Descriptor instead.
 func (*PostMessageRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{0}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PostMessageRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
 }
 
 func (x *PostMessageRequest) GetPayload() string {
@@ -108,7 +115,7 @@ type PostMessageResponse struct {
 
 func (x *PostMessageResponse) Reset() {
 	*x = PostMessageResponse{}
-	mi := &file_gateway_proto_msgTypes[1]
+	mi := &file_proto_gateway_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -120,7 +127,7 @@ func (x *PostMessageResponse) String() string {
 func (*PostMessageResponse) ProtoMessage() {}
 
 func (x *PostMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[1]
+	mi := &file_proto_gateway_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -133,7 +140,7 @@ func (x *PostMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostMessageResponse.ProtoReflect.Descriptor instead.
 func (*PostMessageResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{1}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PostMessageResponse) GetMessageId() string {
@@ -147,19 +154,21 @@ func (x *PostMessageResponse) GetMessageId() string {
 // which has the same gateway-schema shape as a post's payload. mission_id and
 // task_id identify the calling run, as on PostMessageRequest.
 type EditMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	Payload       string                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
-	MissionId     string                 `protobuf:"bytes,3,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
-	TaskId        string                 `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
-	Attachments   []*FileAttachment      `protobuf:"bytes,5,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	ThreadId      string            `protobuf:"bytes,6,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	MessageId     string            `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	Payload       string            `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	MissionId     string            `protobuf:"bytes,3,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
+	TaskId        string            `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Attachments   []*FileAttachment `protobuf:"bytes,5,rep,name=attachments,proto3" json:"attachments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EditMessageRequest) Reset() {
 	*x = EditMessageRequest{}
-	mi := &file_gateway_proto_msgTypes[2]
+	mi := &file_proto_gateway_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -171,7 +180,7 @@ func (x *EditMessageRequest) String() string {
 func (*EditMessageRequest) ProtoMessage() {}
 
 func (x *EditMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[2]
+	mi := &file_proto_gateway_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -184,7 +193,14 @@ func (x *EditMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EditMessageRequest.ProtoReflect.Descriptor instead.
 func (*EditMessageRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{2}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *EditMessageRequest) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
 }
 
 func (x *EditMessageRequest) GetMessageId() string {
@@ -222,69 +238,6 @@ func (x *EditMessageRequest) GetAttachments() []*FileAttachment {
 	return nil
 }
 
-// LinkRequest names the request a mission run belongs to. key is the
-// gateway-defined request key the agent passed (e.g. a ticket key);
-// mission_id and task_id identify the calling run, as on PostMessageRequest.
-type LinkRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	MissionId     string                 `protobuf:"bytes,2,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
-	TaskId        string                 `protobuf:"bytes,3,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LinkRequest) Reset() {
-	*x = LinkRequest{}
-	mi := &file_gateway_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LinkRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LinkRequest) ProtoMessage() {}
-
-func (x *LinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LinkRequest.ProtoReflect.Descriptor instead.
-func (*LinkRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *LinkRequest) GetKey() string {
-	if x != nil {
-		return x.Key
-	}
-	return ""
-}
-
-func (x *LinkRequest) GetMissionId() string {
-	if x != nil {
-		return x.MissionId
-	}
-	return ""
-}
-
-func (x *LinkRequest) GetTaskId() string {
-	if x != nil {
-		return x.TaskId
-	}
-	return ""
-}
-
 // FileAttachment is a squadron-local file (memory/scratchpad/packet) that
 // squadron has already read and is shipping to the gateway as raw bytes.
 type FileAttachment struct {
@@ -298,7 +251,7 @@ type FileAttachment struct {
 
 func (x *FileAttachment) Reset() {
 	*x = FileAttachment{}
-	mi := &file_gateway_proto_msgTypes[4]
+	mi := &file_proto_gateway_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +263,7 @@ func (x *FileAttachment) String() string {
 func (*FileAttachment) ProtoMessage() {}
 
 func (x *FileAttachment) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[4]
+	mi := &file_proto_gateway_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +276,7 @@ func (x *FileAttachment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileAttachment.ProtoReflect.Descriptor instead.
 func (*FileAttachment) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{4}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *FileAttachment) GetFilename() string {
@@ -362,7 +315,7 @@ type MessageToolSpecResponse struct {
 
 func (x *MessageToolSpecResponse) Reset() {
 	*x = MessageToolSpecResponse{}
-	mi := &file_gateway_proto_msgTypes[5]
+	mi := &file_proto_gateway_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +327,7 @@ func (x *MessageToolSpecResponse) String() string {
 func (*MessageToolSpecResponse) ProtoMessage() {}
 
 func (x *MessageToolSpecResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[5]
+	mi := &file_proto_gateway_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -387,7 +340,7 @@ func (x *MessageToolSpecResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageToolSpecResponse.ProtoReflect.Descriptor instead.
 func (*MessageToolSpecResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{5}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MessageToolSpecResponse) GetDescription() string {
@@ -412,7 +365,7 @@ type Empty struct {
 
 func (x *Empty) Reset() {
 	*x = Empty{}
-	mi := &file_gateway_proto_msgTypes[6]
+	mi := &file_proto_gateway_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +377,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[6]
+	mi := &file_proto_gateway_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +390,7 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{6}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{5}
 }
 
 type ConfigureRequest struct {
@@ -452,7 +405,7 @@ type ConfigureRequest struct {
 
 func (x *ConfigureRequest) Reset() {
 	*x = ConfigureRequest{}
-	mi := &file_gateway_proto_msgTypes[7]
+	mi := &file_proto_gateway_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -464,7 +417,7 @@ func (x *ConfigureRequest) String() string {
 func (*ConfigureRequest) ProtoMessage() {}
 
 func (x *ConfigureRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[7]
+	mi := &file_proto_gateway_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,7 +430,7 @@ func (x *ConfigureRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigureRequest.ProtoReflect.Descriptor instead.
 func (*ConfigureRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{7}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ConfigureRequest) GetSettings() map[string]string {
@@ -504,7 +457,7 @@ type ConfigureResponse struct {
 
 func (x *ConfigureResponse) Reset() {
 	*x = ConfigureResponse{}
-	mi := &file_gateway_proto_msgTypes[8]
+	mi := &file_proto_gateway_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -516,7 +469,7 @@ func (x *ConfigureResponse) String() string {
 func (*ConfigureResponse) ProtoMessage() {}
 
 func (x *ConfigureResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[8]
+	mi := &file_proto_gateway_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -529,7 +482,7 @@ func (x *ConfigureResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigureResponse.ProtoReflect.Descriptor instead.
 func (*ConfigureResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{8}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ConfigureResponse) GetSuccess() bool {
@@ -550,22 +503,24 @@ func (x *ConfigureResponse) GetError() string {
 // Kept here as a gRPC-friendly message so the SDK doesn't pull in the
 // wire package's broader dependencies.
 type HumanInputRecord struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	MissionId         string                 `protobuf:"bytes,2,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
-	MissionName       string                 `protobuf:"bytes,3,opt,name=mission_name,json=missionName,proto3" json:"mission_name,omitempty"`
-	TaskId            string                 `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
-	TaskName          string                 `protobuf:"bytes,5,opt,name=task_name,json=taskName,proto3" json:"task_name,omitempty"`
-	ToolCallId        string                 `protobuf:"bytes,6,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
-	Question          string                 `protobuf:"bytes,7,opt,name=question,proto3" json:"question,omitempty"`
-	ShortSummary      string                 `protobuf:"bytes,8,opt,name=short_summary,json=shortSummary,proto3" json:"short_summary,omitempty"`
-	AdditionalContext string                 `protobuf:"bytes,9,opt,name=additional_context,json=additionalContext,proto3" json:"additional_context,omitempty"`
-	Choices           []string               `protobuf:"bytes,10,rep,name=choices,proto3" json:"choices,omitempty"`
-	State             string                 `protobuf:"bytes,11,opt,name=state,proto3" json:"state,omitempty"`                                // "open" | "resolved"
-	RequestedAt       string                 `protobuf:"bytes,12,opt,name=requested_at,json=requestedAt,proto3" json:"requested_at,omitempty"` // RFC3339Nano
-	ResolvedAt        string                 `protobuf:"bytes,13,opt,name=resolved_at,json=resolvedAt,proto3" json:"resolved_at,omitempty"`    // RFC3339Nano, empty if open
-	Response          string                 `protobuf:"bytes,14,opt,name=response,proto3" json:"response,omitempty"`
-	ResponderUserId   string                 `protobuf:"bytes,15,opt,name=responder_user_id,json=responderUserId,proto3" json:"responder_user_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	ThreadId          string   `protobuf:"bytes,17,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	Id                string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	MissionId         string   `protobuf:"bytes,2,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
+	MissionName       string   `protobuf:"bytes,3,opt,name=mission_name,json=missionName,proto3" json:"mission_name,omitempty"`
+	TaskId            string   `protobuf:"bytes,4,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	TaskName          string   `protobuf:"bytes,5,opt,name=task_name,json=taskName,proto3" json:"task_name,omitempty"`
+	ToolCallId        string   `protobuf:"bytes,6,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
+	Question          string   `protobuf:"bytes,7,opt,name=question,proto3" json:"question,omitempty"`
+	ShortSummary      string   `protobuf:"bytes,8,opt,name=short_summary,json=shortSummary,proto3" json:"short_summary,omitempty"`
+	AdditionalContext string   `protobuf:"bytes,9,opt,name=additional_context,json=additionalContext,proto3" json:"additional_context,omitempty"`
+	Choices           []string `protobuf:"bytes,10,rep,name=choices,proto3" json:"choices,omitempty"`
+	State             string   `protobuf:"bytes,11,opt,name=state,proto3" json:"state,omitempty"`                                // "open" | "resolved"
+	RequestedAt       string   `protobuf:"bytes,12,opt,name=requested_at,json=requestedAt,proto3" json:"requested_at,omitempty"` // RFC3339Nano
+	ResolvedAt        string   `protobuf:"bytes,13,opt,name=resolved_at,json=resolvedAt,proto3" json:"resolved_at,omitempty"`    // RFC3339Nano, empty if open
+	Response          string   `protobuf:"bytes,14,opt,name=response,proto3" json:"response,omitempty"`
+	ResponderUserId   string   `protobuf:"bytes,15,opt,name=responder_user_id,json=responderUserId,proto3" json:"responder_user_id,omitempty"`
 	// multi_select=true means the human can pick 1+ from choices. The
 	// resolved response is then a JSON-encoded array of strings
 	// (e.g. `["A","C"]`) rather than a single value.
@@ -576,7 +531,7 @@ type HumanInputRecord struct {
 
 func (x *HumanInputRecord) Reset() {
 	*x = HumanInputRecord{}
-	mi := &file_gateway_proto_msgTypes[9]
+	mi := &file_proto_gateway_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +543,7 @@ func (x *HumanInputRecord) String() string {
 func (*HumanInputRecord) ProtoMessage() {}
 
 func (x *HumanInputRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[9]
+	mi := &file_proto_gateway_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +556,14 @@ func (x *HumanInputRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HumanInputRecord.ProtoReflect.Descriptor instead.
 func (*HumanInputRecord) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{9}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *HumanInputRecord) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
 }
 
 func (x *HumanInputRecord) GetId() string {
@@ -730,7 +692,7 @@ type HumanInputFilter struct {
 
 func (x *HumanInputFilter) Reset() {
 	*x = HumanInputFilter{}
-	mi := &file_gateway_proto_msgTypes[10]
+	mi := &file_proto_gateway_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -742,7 +704,7 @@ func (x *HumanInputFilter) String() string {
 func (*HumanInputFilter) ProtoMessage() {}
 
 func (x *HumanInputFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[10]
+	mi := &file_proto_gateway_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -755,7 +717,7 @@ func (x *HumanInputFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HumanInputFilter.ProtoReflect.Descriptor instead.
 func (*HumanInputFilter) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{10}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *HumanInputFilter) GetState() string {
@@ -810,7 +772,7 @@ type HumanInputList struct {
 
 func (x *HumanInputList) Reset() {
 	*x = HumanInputList{}
-	mi := &file_gateway_proto_msgTypes[11]
+	mi := &file_proto_gateway_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -822,7 +784,7 @@ func (x *HumanInputList) String() string {
 func (*HumanInputList) ProtoMessage() {}
 
 func (x *HumanInputList) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[11]
+	mi := &file_proto_gateway_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -835,7 +797,7 @@ func (x *HumanInputList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HumanInputList.ProtoReflect.Descriptor instead.
 func (*HumanInputList) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{11}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *HumanInputList) GetItems() []*HumanInputRecord {
@@ -863,7 +825,7 @@ type ResolveHumanInputRequest struct {
 
 func (x *ResolveHumanInputRequest) Reset() {
 	*x = ResolveHumanInputRequest{}
-	mi := &file_gateway_proto_msgTypes[12]
+	mi := &file_proto_gateway_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -875,7 +837,7 @@ func (x *ResolveHumanInputRequest) String() string {
 func (*ResolveHumanInputRequest) ProtoMessage() {}
 
 func (x *ResolveHumanInputRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[12]
+	mi := &file_proto_gateway_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -888,7 +850,7 @@ func (x *ResolveHumanInputRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveHumanInputRequest.ProtoReflect.Descriptor instead.
 func (*ResolveHumanInputRequest) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{12}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ResolveHumanInputRequest) GetToolCallId() string {
@@ -929,7 +891,7 @@ type ResolveHumanInputResponse struct {
 
 func (x *ResolveHumanInputResponse) Reset() {
 	*x = ResolveHumanInputResponse{}
-	mi := &file_gateway_proto_msgTypes[13]
+	mi := &file_proto_gateway_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -941,7 +903,7 @@ func (x *ResolveHumanInputResponse) String() string {
 func (*ResolveHumanInputResponse) ProtoMessage() {}
 
 func (x *ResolveHumanInputResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[13]
+	mi := &file_proto_gateway_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -954,7 +916,7 @@ func (x *ResolveHumanInputResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveHumanInputResponse.ProtoReflect.Descriptor instead.
 func (*ResolveHumanInputResponse) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{13}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ResolveHumanInputResponse) GetRecord() *HumanInputRecord {
@@ -981,9 +943,11 @@ func (x *ResolveHumanInputResponse) GetNotFound() bool {
 // NotificationRecord describes a single mission-lifecycle notification.
 // All fields are flat strings so the schema stays language-neutral.
 type NotificationRecord struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	MissionId   string                 `protobuf:"bytes,1,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
-	MissionName string                 `protobuf:"bytes,2,opt,name=mission_name,json=missionName,proto3" json:"mission_name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	ThreadId    string `protobuf:"bytes,9,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	MissionId   string `protobuf:"bytes,1,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
+	MissionName string `protobuf:"bytes,2,opt,name=mission_name,json=missionName,proto3" json:"mission_name,omitempty"`
 	// event is one of "mission_completed" or "mission_failed".
 	Event      string `protobuf:"bytes,3,opt,name=event,proto3" json:"event,omitempty"`
 	Title      string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
@@ -1001,7 +965,7 @@ type NotificationRecord struct {
 
 func (x *NotificationRecord) Reset() {
 	*x = NotificationRecord{}
-	mi := &file_gateway_proto_msgTypes[14]
+	mi := &file_proto_gateway_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +977,7 @@ func (x *NotificationRecord) String() string {
 func (*NotificationRecord) ProtoMessage() {}
 
 func (x *NotificationRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_gateway_proto_msgTypes[14]
+	mi := &file_proto_gateway_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +990,14 @@ func (x *NotificationRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationRecord.ProtoReflect.Descriptor instead.
 func (*NotificationRecord) Descriptor() ([]byte, []int) {
-	return file_gateway_proto_rawDescGZIP(), []int{14}
+	return file_proto_gateway_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *NotificationRecord) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
 }
 
 func (x *NotificationRecord) GetMissionId() string {
@@ -1085,12 +1056,13 @@ func (x *NotificationRecord) GetChannel() string {
 	return ""
 }
 
-var File_gateway_proto protoreflect.FileDescriptor
+var File_proto_gateway_proto protoreflect.FileDescriptor
 
-const file_gateway_proto_rawDesc = "" +
+const file_proto_gateway_proto_rawDesc = "" +
 	"\n" +
-	"\rgateway.proto\x12\agateway\"\xa1\x01\n" +
-	"\x12PostMessageRequest\x12\x18\n" +
+	"\x13proto/gateway.proto\x12\agateway\"\xbe\x01\n" +
+	"\x12PostMessageRequest\x12\x1b\n" +
+	"\tthread_id\x18\x05 \x01(\tR\bthreadId\x12\x18\n" +
 	"\apayload\x18\x01 \x01(\tR\apayload\x129\n" +
 	"\vattachments\x18\x02 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\x12\x1d\n" +
 	"\n" +
@@ -1098,20 +1070,16 @@ const file_gateway_proto_rawDesc = "" +
 	"\atask_id\x18\x04 \x01(\tR\x06taskId\"4\n" +
 	"\x13PostMessageResponse\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\"\xc0\x01\n" +
-	"\x12EditMessageRequest\x12\x1d\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"\xdd\x01\n" +
+	"\x12EditMessageRequest\x12\x1b\n" +
+	"\tthread_id\x18\x06 \x01(\tR\bthreadId\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x1d\n" +
 	"\n" +
 	"mission_id\x18\x03 \x01(\tR\tmissionId\x12\x17\n" +
 	"\atask_id\x18\x04 \x01(\tR\x06taskId\x129\n" +
-	"\vattachments\x18\x05 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\"W\n" +
-	"\vLinkRequest\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1d\n" +
-	"\n" +
-	"mission_id\x18\x02 \x01(\tR\tmissionId\x12\x17\n" +
-	"\atask_id\x18\x03 \x01(\tR\x06taskId\"c\n" +
+	"\vattachments\x18\x05 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\"c\n" +
 	"\x0eFileAttachment\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x1b\n" +
 	"\tmime_type\x18\x02 \x01(\tR\bmimeType\x12\x18\n" +
@@ -1128,8 +1096,9 @@ const file_gateway_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"C\n" +
 	"\x11ConfigureResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\"\x8b\x04\n" +
-	"\x10HumanInputRecord\x12\x0e\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"\xa8\x04\n" +
+	"\x10HumanInputRecord\x12\x1b\n" +
+	"\tthread_id\x18\x11 \x01(\tR\bthreadId\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
 	"mission_id\x18\x02 \x01(\tR\tmissionId\x12!\n" +
@@ -1169,8 +1138,9 @@ const file_gateway_proto_rawDesc = "" +
 	"\x19ResolveHumanInputResponse\x121\n" +
 	"\x06record\x18\x01 \x01(\v2\x19.gateway.HumanInputRecordR\x06record\x12)\n" +
 	"\x10already_resolved\x18\x02 \x01(\bR\x0falreadyResolved\x12\x1b\n" +
-	"\tnot_found\x18\x03 \x01(\bR\bnotFound\"\xed\x01\n" +
-	"\x12NotificationRecord\x12\x1d\n" +
+	"\tnot_found\x18\x03 \x01(\bR\bnotFound\"\x8a\x02\n" +
+	"\x12NotificationRecord\x12\x1b\n" +
+	"\tthread_id\x18\t \x01(\tR\bthreadId\x12\x1d\n" +
 	"\n" +
 	"mission_id\x18\x01 \x01(\tR\tmissionId\x12!\n" +
 	"\fmission_name\x18\x02 \x01(\tR\vmissionName\x12\x14\n" +
@@ -1180,15 +1150,14 @@ const file_gateway_proto_rawDesc = "" +
 	"\voccurred_at\x18\x06 \x01(\tR\n" +
 	"occurredAt\x12\x14\n" +
 	"\x05error\x18\a \x01(\tR\x05error\x12\x18\n" +
-	"\achannel\x18\b \x01(\tR\achannel2\xbf\x04\n" +
+	"\achannel\x18\b \x01(\tR\achannel2\x91\x04\n" +
 	"\x0eGatewayService\x12B\n" +
 	"\tConfigure\x12\x19.gateway.ConfigureRequest\x1a\x1a.gateway.ConfigureResponse\x12B\n" +
 	"\x15OnHumanInputRequested\x12\x19.gateway.HumanInputRecord\x1a\x0e.gateway.Empty\x12A\n" +
 	"\x14OnHumanInputResolved\x12\x19.gateway.HumanInputRecord\x1a\x0e.gateway.Empty\x12=\n" +
 	"\x0eOnNotification\x12\x1b.gateway.NotificationRecord\x1a\x0e.gateway.Empty\x12H\n" +
 	"\vPostMessage\x12\x1b.gateway.PostMessageRequest\x1a\x1c.gateway.PostMessageResponse\x12C\n" +
-	"\x0fMessageToolSpec\x12\x0e.gateway.Empty\x1a .gateway.MessageToolSpecResponse\x12,\n" +
-	"\x04Link\x12\x14.gateway.LinkRequest\x1a\x0e.gateway.Empty\x12:\n" +
+	"\x0fMessageToolSpec\x12\x0e.gateway.Empty\x1a .gateway.MessageToolSpecResponse\x12:\n" +
 	"\vEditMessage\x12\x1b.gateway.EditMessageRequest\x1a\x0e.gateway.Empty\x12*\n" +
 	"\bShutdown\x12\x0e.gateway.Empty\x1a\x0e.gateway.Empty2\xb4\x01\n" +
 	"\x0fSquadronService\x12E\n" +
@@ -1196,91 +1165,88 @@ const file_gateway_proto_rawDesc = "" +
 	"\x11ResolveHumanInput\x12!.gateway.ResolveHumanInputRequest\x1a\".gateway.ResolveHumanInputResponseB/Z-github.com/mlund01/squadron-gateway-sdk/protob\x06proto3"
 
 var (
-	file_gateway_proto_rawDescOnce sync.Once
-	file_gateway_proto_rawDescData []byte
+	file_proto_gateway_proto_rawDescOnce sync.Once
+	file_proto_gateway_proto_rawDescData []byte
 )
 
-func file_gateway_proto_rawDescGZIP() []byte {
-	file_gateway_proto_rawDescOnce.Do(func() {
-		file_gateway_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_gateway_proto_rawDesc), len(file_gateway_proto_rawDesc)))
+func file_proto_gateway_proto_rawDescGZIP() []byte {
+	file_proto_gateway_proto_rawDescOnce.Do(func() {
+		file_proto_gateway_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_gateway_proto_rawDesc), len(file_proto_gateway_proto_rawDesc)))
 	})
-	return file_gateway_proto_rawDescData
+	return file_proto_gateway_proto_rawDescData
 }
 
-var file_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_gateway_proto_goTypes = []any{
+var file_proto_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_proto_gateway_proto_goTypes = []any{
 	(*PostMessageRequest)(nil),        // 0: gateway.PostMessageRequest
 	(*PostMessageResponse)(nil),       // 1: gateway.PostMessageResponse
 	(*EditMessageRequest)(nil),        // 2: gateway.EditMessageRequest
-	(*LinkRequest)(nil),               // 3: gateway.LinkRequest
-	(*FileAttachment)(nil),            // 4: gateway.FileAttachment
-	(*MessageToolSpecResponse)(nil),   // 5: gateway.MessageToolSpecResponse
-	(*Empty)(nil),                     // 6: gateway.Empty
-	(*ConfigureRequest)(nil),          // 7: gateway.ConfigureRequest
-	(*ConfigureResponse)(nil),         // 8: gateway.ConfigureResponse
-	(*HumanInputRecord)(nil),          // 9: gateway.HumanInputRecord
-	(*HumanInputFilter)(nil),          // 10: gateway.HumanInputFilter
-	(*HumanInputList)(nil),            // 11: gateway.HumanInputList
-	(*ResolveHumanInputRequest)(nil),  // 12: gateway.ResolveHumanInputRequest
-	(*ResolveHumanInputResponse)(nil), // 13: gateway.ResolveHumanInputResponse
-	(*NotificationRecord)(nil),        // 14: gateway.NotificationRecord
-	nil,                               // 15: gateway.ConfigureRequest.SettingsEntry
+	(*FileAttachment)(nil),            // 3: gateway.FileAttachment
+	(*MessageToolSpecResponse)(nil),   // 4: gateway.MessageToolSpecResponse
+	(*Empty)(nil),                     // 5: gateway.Empty
+	(*ConfigureRequest)(nil),          // 6: gateway.ConfigureRequest
+	(*ConfigureResponse)(nil),         // 7: gateway.ConfigureResponse
+	(*HumanInputRecord)(nil),          // 8: gateway.HumanInputRecord
+	(*HumanInputFilter)(nil),          // 9: gateway.HumanInputFilter
+	(*HumanInputList)(nil),            // 10: gateway.HumanInputList
+	(*ResolveHumanInputRequest)(nil),  // 11: gateway.ResolveHumanInputRequest
+	(*ResolveHumanInputResponse)(nil), // 12: gateway.ResolveHumanInputResponse
+	(*NotificationRecord)(nil),        // 13: gateway.NotificationRecord
+	nil,                               // 14: gateway.ConfigureRequest.SettingsEntry
 }
-var file_gateway_proto_depIdxs = []int32{
-	4,  // 0: gateway.PostMessageRequest.attachments:type_name -> gateway.FileAttachment
-	4,  // 1: gateway.EditMessageRequest.attachments:type_name -> gateway.FileAttachment
-	15, // 2: gateway.ConfigureRequest.settings:type_name -> gateway.ConfigureRequest.SettingsEntry
-	9,  // 3: gateway.HumanInputList.items:type_name -> gateway.HumanInputRecord
-	9,  // 4: gateway.ResolveHumanInputResponse.record:type_name -> gateway.HumanInputRecord
-	7,  // 5: gateway.GatewayService.Configure:input_type -> gateway.ConfigureRequest
-	9,  // 6: gateway.GatewayService.OnHumanInputRequested:input_type -> gateway.HumanInputRecord
-	9,  // 7: gateway.GatewayService.OnHumanInputResolved:input_type -> gateway.HumanInputRecord
-	14, // 8: gateway.GatewayService.OnNotification:input_type -> gateway.NotificationRecord
+var file_proto_gateway_proto_depIdxs = []int32{
+	3,  // 0: gateway.PostMessageRequest.attachments:type_name -> gateway.FileAttachment
+	3,  // 1: gateway.EditMessageRequest.attachments:type_name -> gateway.FileAttachment
+	14, // 2: gateway.ConfigureRequest.settings:type_name -> gateway.ConfigureRequest.SettingsEntry
+	8,  // 3: gateway.HumanInputList.items:type_name -> gateway.HumanInputRecord
+	8,  // 4: gateway.ResolveHumanInputResponse.record:type_name -> gateway.HumanInputRecord
+	6,  // 5: gateway.GatewayService.Configure:input_type -> gateway.ConfigureRequest
+	8,  // 6: gateway.GatewayService.OnHumanInputRequested:input_type -> gateway.HumanInputRecord
+	8,  // 7: gateway.GatewayService.OnHumanInputResolved:input_type -> gateway.HumanInputRecord
+	13, // 8: gateway.GatewayService.OnNotification:input_type -> gateway.NotificationRecord
 	0,  // 9: gateway.GatewayService.PostMessage:input_type -> gateway.PostMessageRequest
-	6,  // 10: gateway.GatewayService.MessageToolSpec:input_type -> gateway.Empty
-	3,  // 11: gateway.GatewayService.Link:input_type -> gateway.LinkRequest
-	2,  // 12: gateway.GatewayService.EditMessage:input_type -> gateway.EditMessageRequest
-	6,  // 13: gateway.GatewayService.Shutdown:input_type -> gateway.Empty
-	10, // 14: gateway.SquadronService.ListHumanInputs:input_type -> gateway.HumanInputFilter
-	12, // 15: gateway.SquadronService.ResolveHumanInput:input_type -> gateway.ResolveHumanInputRequest
-	8,  // 16: gateway.GatewayService.Configure:output_type -> gateway.ConfigureResponse
-	6,  // 17: gateway.GatewayService.OnHumanInputRequested:output_type -> gateway.Empty
-	6,  // 18: gateway.GatewayService.OnHumanInputResolved:output_type -> gateway.Empty
-	6,  // 19: gateway.GatewayService.OnNotification:output_type -> gateway.Empty
-	1,  // 20: gateway.GatewayService.PostMessage:output_type -> gateway.PostMessageResponse
-	5,  // 21: gateway.GatewayService.MessageToolSpec:output_type -> gateway.MessageToolSpecResponse
-	6,  // 22: gateway.GatewayService.Link:output_type -> gateway.Empty
-	6,  // 23: gateway.GatewayService.EditMessage:output_type -> gateway.Empty
-	6,  // 24: gateway.GatewayService.Shutdown:output_type -> gateway.Empty
-	11, // 25: gateway.SquadronService.ListHumanInputs:output_type -> gateway.HumanInputList
-	13, // 26: gateway.SquadronService.ResolveHumanInput:output_type -> gateway.ResolveHumanInputResponse
-	16, // [16:27] is the sub-list for method output_type
-	5,  // [5:16] is the sub-list for method input_type
+	5,  // 10: gateway.GatewayService.MessageToolSpec:input_type -> gateway.Empty
+	2,  // 11: gateway.GatewayService.EditMessage:input_type -> gateway.EditMessageRequest
+	5,  // 12: gateway.GatewayService.Shutdown:input_type -> gateway.Empty
+	9,  // 13: gateway.SquadronService.ListHumanInputs:input_type -> gateway.HumanInputFilter
+	11, // 14: gateway.SquadronService.ResolveHumanInput:input_type -> gateway.ResolveHumanInputRequest
+	7,  // 15: gateway.GatewayService.Configure:output_type -> gateway.ConfigureResponse
+	5,  // 16: gateway.GatewayService.OnHumanInputRequested:output_type -> gateway.Empty
+	5,  // 17: gateway.GatewayService.OnHumanInputResolved:output_type -> gateway.Empty
+	5,  // 18: gateway.GatewayService.OnNotification:output_type -> gateway.Empty
+	1,  // 19: gateway.GatewayService.PostMessage:output_type -> gateway.PostMessageResponse
+	4,  // 20: gateway.GatewayService.MessageToolSpec:output_type -> gateway.MessageToolSpecResponse
+	5,  // 21: gateway.GatewayService.EditMessage:output_type -> gateway.Empty
+	5,  // 22: gateway.GatewayService.Shutdown:output_type -> gateway.Empty
+	10, // 23: gateway.SquadronService.ListHumanInputs:output_type -> gateway.HumanInputList
+	12, // 24: gateway.SquadronService.ResolveHumanInput:output_type -> gateway.ResolveHumanInputResponse
+	15, // [15:25] is the sub-list for method output_type
+	5,  // [5:15] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_gateway_proto_init() }
-func file_gateway_proto_init() {
-	if File_gateway_proto != nil {
+func init() { file_proto_gateway_proto_init() }
+func file_proto_gateway_proto_init() {
+	if File_proto_gateway_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gateway_proto_rawDesc), len(file_gateway_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_gateway_proto_rawDesc), len(file_proto_gateway_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
-		GoTypes:           file_gateway_proto_goTypes,
-		DependencyIndexes: file_gateway_proto_depIdxs,
-		MessageInfos:      file_gateway_proto_msgTypes,
+		GoTypes:           file_proto_gateway_proto_goTypes,
+		DependencyIndexes: file_proto_gateway_proto_depIdxs,
+		MessageInfos:      file_proto_gateway_proto_msgTypes,
 	}.Build()
-	File_gateway_proto = out.File
-	file_gateway_proto_goTypes = nil
-	file_gateway_proto_depIdxs = nil
+	File_proto_gateway_proto = out.File
+	file_proto_gateway_proto_goTypes = nil
+	file_proto_gateway_proto_depIdxs = nil
 }
