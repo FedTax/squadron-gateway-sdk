@@ -15,14 +15,10 @@ channel:
   `OnHumanInputResolved`, `OnNotification`, `PostMessage`, …) so the gateway
   can mirror state to its external system. `OnNotification` is a one-way
   mission-lifecycle post (`mission_completed` / `mission_failed`); `PostMessage`
-  posts an agent-authored message (backs the `builtins.gateway.post` tool). The
-  gateway owns the post-message contract: `MessageToolSpec` returns the tool
-  description + a JSON Schema squadron shows the LLM, and `PostMessage` receives
-  the raw JSON the agent produced for that schema, so each gateway defines
-  exactly the rich-message shape it accepts (text, embeds/blocks, attachments).
-  `PostMessage` returns the posted message's ID; a gateway that also
-  implements the optional `Editor` interface can replace that message when
-  the agent calls `builtins.gateway.edit` with it.
+  posts a message using the payload format described by `MessageToolSpec`.
+  Each gateway defines the format it accepts (text, embeds/blocks, attachments).
+  `PostMessage` returns the posted message's ID; gateways implementing the
+  optional `Editor` interface accept that ID in `EditMessage` to replace it.
 - **Gateway → Squadron**: pulls / mutates state (`ListHumanInputs`,
   `ResolveHumanInput`, …) so user actions in the external system flow
   back to squadron.
@@ -67,15 +63,14 @@ func (g *myGateway) OnNotification(ctx context.Context, rec gateway.Notification
 }
 
 func (g *myGateway) PostMessage(ctx context.Context, req gateway.PostMessageRequest) (gateway.PostMessageResponse, error) {
-    // req.Payload is the raw JSON the agent produced for MessageToolSpec's
-    // schema — parse and render it however this gateway sees fit. Return the
-    // message's ID so the agent can pass it to builtins.gateway.edit.
+    // Parse and render req.Payload using the format advertised by MessageToolSpec.
+    // Return the posted message's ID for subsequent EditMessage requests.
     id := g.send(req.Payload)
     return gateway.PostMessageResponse{MessageID: id}, nil
 }
 
 func (g *myGateway) MessageToolSpec(ctx context.Context) (gateway.MessageToolSpec, error) {
-    // tell the LLM how to format a message for this gateway
+    // Describe the message payload this gateway accepts.
     return gateway.MessageToolSpec{
         Description:  "Post a message. `text` supports markdown.",
         ParamsSchema: `{"type":"object","properties":{"text":{"type":"string"}},"required":["text"]}`,

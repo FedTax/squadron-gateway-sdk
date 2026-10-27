@@ -68,9 +68,7 @@ func (h *HostPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, 
 	}, nil
 }
 
-// GRPCGatewayClient is the host-side handle on a running gateway. It
-// is returned from plugin.NewClient(...).Client().Dispense(...) and
-// satisfies the GatewayClient interface that squadron uses.
+// GRPCGatewayClient forwards host requests to a running gateway over gRPC.
 type GRPCGatewayClient struct {
 	client            pb.GatewayServiceClient
 	broker            *plugin.GRPCBroker
@@ -143,9 +141,7 @@ func (g *GRPCGatewayClient) EditMessage(ctx context.Context, req EditMessageRequ
 	return err
 }
 
-// Shutdown asks the gateway to clean up before squadron kills the
-// subprocess. Best-effort — squadron should tear down the subprocess
-// regardless of return value.
+// Shutdown requests gateway cleanup and returns any RPC error.
 func (g *GRPCGatewayClient) Shutdown(ctx context.Context) error {
 	_, err := g.client.Shutdown(ctx, &pb.Empty{})
 	return err

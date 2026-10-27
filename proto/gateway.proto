@@ -91,10 +91,8 @@ message MessageToolSpecResponse {
     string params_schema_json = 2;
 }
 
-// SquadronService is implemented by the host (squadron) and registered
-// on a broker stream. Gateways dial it on startup to query / mutate
-// state. Designed to grow over time — additional capabilities (mission
-// listing, run, dataset queries, etc.) get appended here.
+// SquadronService provides question lookup and resolution through the host
+// broker stream.
 service SquadronService {
     // ListHumanInputs returns matching records. The `since` filter is
     // the primary catch-up mechanism: a gateway records the last event

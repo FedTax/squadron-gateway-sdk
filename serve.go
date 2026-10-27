@@ -13,10 +13,8 @@ import (
 	pb "github.com/mlund01/squadron-gateway-sdk/proto"
 )
 
-// MaxGRPCMessageBytes is the gRPC message-size limit for the gateway<->squadron
-// channel. It is raised well above gRPC's 4 MB default so file attachments
-// (shipped as raw bytes in PostMessageRequest) fit. Squadron caps individual
-// attachments below this.
+// MaxGRPCMessageBytes limits each encoded gRPC message to 32 MiB, allowing
+// file attachments to travel with the message payload.
 const MaxGRPCMessageBytes = 32 << 20 // 32 MiB
 
 // Serve is the entry point for a gateway binary. Call it from main()
@@ -52,10 +50,7 @@ func handshake() plugin.HandshakeConfig {
 	}
 }
 
-// gatewayPluginImpl wires hashicorp/go-plugin to our Gateway interface.
-// On the plugin side it serves GatewayService; on the host side it
-// returns a GRPCClient that satisfies the host-facing gateway client
-// interface (defined in the squadron repo).
+// gatewayPluginImpl registers the gateway service with go-plugin.
 type gatewayPluginImpl struct {
 	plugin.Plugin
 	Impl Gateway

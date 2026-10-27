@@ -441,10 +441,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// SquadronService is implemented by the host (squadron) and registered
-// on a broker stream. Gateways dial it on startup to query / mutate
-// state. Designed to grow over time — additional capabilities (mission
-// listing, run, dataset queries, etc.) get appended here.
+// SquadronService provides question lookup and resolution through the host
+// broker stream.
 type SquadronServiceClient interface {
 	// ListHumanInputs returns matching records. The `since` filter is
 	// the primary catch-up mechanism: a gateway records the last event
@@ -488,10 +486,8 @@ func (c *squadronServiceClient) ResolveHumanInput(ctx context.Context, in *Resol
 // All implementations must embed UnimplementedSquadronServiceServer
 // for forward compatibility.
 //
-// SquadronService is implemented by the host (squadron) and registered
-// on a broker stream. Gateways dial it on startup to query / mutate
-// state. Designed to grow over time — additional capabilities (mission
-// listing, run, dataset queries, etc.) get appended here.
+// SquadronService provides question lookup and resolution through the host
+// broker stream.
 type SquadronServiceServer interface {
 	// ListHumanInputs returns matching records. The `since` filter is
 	// the primary catch-up mechanism: a gateway records the last event

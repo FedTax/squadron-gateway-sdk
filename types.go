@@ -2,11 +2,6 @@
 // integrations that bridge Squadron to external systems (Discord, Slack,
 // PagerDuty, custom dashboards, …).
 //
-// Squadron loads a gateway the same way it loads a plugin — declared in
-// HCL with `gateway "name" { source = "github.com/..."; version = "..." }`,
-// downloaded from the GitHub release on first load, and run as a managed
-// subprocess for the lifetime of the squadron process.
-//
 // The protocol is bidirectional gRPC:
 //
 //   - Squadron pushes events to the gateway (OnHumanInputRequested,
@@ -51,8 +46,7 @@ const (
 	HumanInputStateResolved HumanInputState = "resolved"
 )
 
-// HumanInputRecord is the canonical view of a single ask_human request,
-// mirrored from squadron's store.
+// HumanInputRecord carries a question, its resolution, and its mission context.
 //
 // Timestamps are RFC3339Nano strings on the wire so the proto schema
 // stays language-neutral, but the SDK exposes them as time.Time on the
@@ -199,10 +193,7 @@ type ResolveResult struct {
 	NotFound bool
 }
 
-// SquadronAPI is the squadron-side surface that gateways call into.
-// The list deliberately starts small; new capabilities (mission
-// management, dataset queries, cost reporting, …) are added here over
-// time without breaking existing gateways.
+// SquadronAPI provides question lookup and resolution to gateways.
 type SquadronAPI interface {
 	ListHumanInputs(ctx context.Context, filter HumanInputFilter) ([]HumanInputRecord, int /* total */, error)
 	ResolveHumanInput(ctx context.Context, toolCallID, response, responderUserID string) (ResolveResult, error)
