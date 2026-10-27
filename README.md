@@ -92,22 +92,16 @@ func (g *myGateway) send(_ string)                           {}
 func main() { gateway.Serve(&myGateway{}) }
 ```
 
-## Mission threads
+## Grouping related mission updates
 
-`ThreadID` identifies a mission thread: a chain of related Squadron runs that
-share a conversation. Squadron generates a UUID when the caller omits it,
-inherits it during cross-mission routing, and preserves it on resume.
+Gateway implementations use Squadron's mission threads to keep updates from
+related runs together. For example, the Slack gateway uses `ThreadID` to keep
+their posts, questions and notifications in a single Slack thread.
 
-Use `ThreadID` to group posts, edits, questions and notifications into a shared
-conversation. Keep `MissionID` for the individual run's URL, attribution and
-question filters; `ToolCallID` still identifies the question being answered.
-Outstanding and resolved questions returned by Squadron's API also include the
-stored run's thread ID.
-
-A mission thread ID is not an external message ID or a Slack channel/timestamp.
-Gateways maintain their own mapping to their external conversation. Events
-outside a mission may have no thread ID and should not be grouped under a shared
-empty key.
+The SDK carries `ThreadID` on posts, edits, questions and notifications.
+`MissionID` identifies the individual run, and `ToolCallID` identifies the
+question being answered. Gateway implementations choose how to associate a
+mission thread with a conversation in their external system.
 
 ## Catch-up after disconnects
 

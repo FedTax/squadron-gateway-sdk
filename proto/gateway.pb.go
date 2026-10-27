@@ -21,13 +21,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// PostMessageRequest carries the raw, gateway-schema-shaped JSON the agent
-// produced (text, channel override, rich layout) plus any squadron-resolved
-// file attachments. The gateway parses payload and uploads each attachment's
-// bytes directly — it never fetches a URL.
+// PostMessageRequest supplies the message payload and file attachments.
+// The gateway interprets payload using the schema advertised by MessageToolSpec.
 type PostMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId    string            `protobuf:"bytes,5,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	Payload     string            `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
 	Attachments []*FileAttachment `protobuf:"bytes,2,rep,name=attachments,proto3" json:"attachments,omitempty"`
@@ -150,12 +148,12 @@ func (x *PostMessageResponse) GetMessageId() string {
 	return ""
 }
 
-// EditMessageRequest replaces the message message_id names with payload,
-// which has the same gateway-schema shape as a post's payload. mission_id and
-// task_id identify the calling run, as on PostMessageRequest.
+// EditMessageRequest replaces the message identified by message_id, using the
+// same payload format and attachment support as PostMessageRequest.
+// mission_id and task_id identify the calling run and task.
 type EditMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId      string            `protobuf:"bytes,6,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	MessageId     string            `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	Payload       string            `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
@@ -238,8 +236,7 @@ func (x *EditMessageRequest) GetAttachments() []*FileAttachment {
 	return nil
 }
 
-// FileAttachment is a squadron-local file (memory/scratchpad/packet) that
-// squadron has already read and is shipping to the gateway as raw bytes.
+// FileAttachment supplies file content and metadata for upload by the gateway.
 type FileAttachment struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
@@ -300,14 +297,12 @@ func (x *FileAttachment) GetContent() []byte {
 	return nil
 }
 
-// MessageToolSpecResponse describes the builtins.gateway.post tool.
+// MessageToolSpecResponse describes the message payload accepted by the gateway.
 type MessageToolSpecResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// description is appended to the tool description so the LLM knows how to
-	// format messages for this gateway.
+	// description explains how to compose a message payload.
 	Description string `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
-	// params_schema_json is an optional JSON Schema (object) for the tool's
-	// parameters. Empty → squadron uses a default { message } schema.
+	// params_schema_json optionally defines the message payload as a JSON Schema object.
 	ParamsSchemaJson string `protobuf:"bytes,2,opt,name=params_schema_json,json=paramsSchemaJson,proto3" json:"params_schema_json,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -499,12 +494,10 @@ func (x *ConfigureResponse) GetError() string {
 	return ""
 }
 
-// HumanInputRecord mirrors the squadron-wire HumanInputRecord type.
-// Kept here as a gRPC-friendly message so the SDK doesn't pull in the
-// wire package's broader dependencies.
+// HumanInputRecord carries a question, its resolution, and its mission context.
 type HumanInputRecord struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId          string   `protobuf:"bytes,17,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	Id                string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	MissionId         string   `protobuf:"bytes,2,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
@@ -944,7 +937,7 @@ func (x *ResolveHumanInputResponse) GetNotFound() bool {
 // All fields are flat strings so the schema stays language-neutral.
 type NotificationRecord struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifies a mission thread (a chain of related mission runs), not a Slack thread.
+	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId    string `protobuf:"bytes,9,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	MissionId   string `protobuf:"bytes,1,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
 	MissionName string `protobuf:"bytes,2,opt,name=mission_name,json=missionName,proto3" json:"mission_name,omitempty"`

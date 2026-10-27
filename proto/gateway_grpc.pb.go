@@ -39,9 +39,7 @@ type GatewayServiceClient interface {
 	// Configure passes settings from HCL config plus a broker stream id
 	// the gateway can use to dial back for SquadronService access.
 	Configure(ctx context.Context, in *ConfigureRequest, opts ...grpc.CallOption) (*ConfigureResponse, error)
-	// OnHumanInputRequested is invoked when an agent calls the
-	// builtins.human.ask tool. The gateway should surface the question
-	// in its external system (Discord channel, Slack DM, etc).
+	// OnHumanInputRequested delivers a question for the gateway to present.
 	OnHumanInputRequested(ctx context.Context, in *HumanInputRecord, opts ...grpc.CallOption) (*Empty, error)
 	// OnHumanInputResolved is invoked whenever a human-input request
 	// transitions to resolved — including resolutions that came from
@@ -54,25 +52,14 @@ type GatewayServiceClient interface {
 	// external system. Unlike human-input, notifications are one-way:
 	// there is nothing for the user to act on.
 	OnNotification(ctx context.Context, in *NotificationRecord, opts ...grpc.CallOption) (*Empty, error)
-	// PostMessage posts a message to the gateway's external system. Squadron
-	// exposes this to agents via the builtins.gateway.post tool. The payload
-	// is the raw JSON the agent produced for the tool, matching the schema the
-	// gateway advertised via MessageToolSpec — the gateway owns the message
-	// contract (text, formatting, channel override, attachments, …) and parses
-	// the payload itself. The response carries the posted message's ID, so
-	// the agent can edit that message later with EditMessage.
+	// PostMessage posts a message using the payload format advertised by
+	// MessageToolSpec. The returned message ID can be used with EditMessage.
 	PostMessage(ctx context.Context, in *PostMessageRequest, opts ...grpc.CallOption) (*PostMessageResponse, error)
-	// MessageToolSpec returns how the builtins.gateway.post tool should be
-	// presented to the LLM for this gateway: a description (formatting docs)
-	// and an optional JSON Schema for the tool's parameters. Squadron fetches
-	// it once the gateway is up and builds the tool from it, so each gateway
-	// can advertise exactly the rich-message shape it accepts.
+	// MessageToolSpec returns a description and optional JSON Schema for
+	// the message payload accepted by the gateway.
 	MessageToolSpec(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MessageToolSpecResponse, error)
-	// EditMessage replaces the content of a message the gateway posted,
-	// identified by the ID PostMessage returned. Squadron exposes this to
-	// agents via the builtins.gateway.edit tool, so a run can update a post
-	// (e.g. a status line) instead of posting it again. Gateways that can't
-	// edit messages may leave it unimplemented.
+	// EditMessage replaces a posted message using the ID returned by PostMessage.
+	// Gateways with editing support implement this RPC.
 	EditMessage(ctx context.Context, in *EditMessageRequest, opts ...grpc.CallOption) (*Empty, error)
 	// Shutdown asks the gateway to release external resources cleanly
 	// before squadron tears down the subprocess.
@@ -177,9 +164,7 @@ type GatewayServiceServer interface {
 	// Configure passes settings from HCL config plus a broker stream id
 	// the gateway can use to dial back for SquadronService access.
 	Configure(context.Context, *ConfigureRequest) (*ConfigureResponse, error)
-	// OnHumanInputRequested is invoked when an agent calls the
-	// builtins.human.ask tool. The gateway should surface the question
-	// in its external system (Discord channel, Slack DM, etc).
+	// OnHumanInputRequested delivers a question for the gateway to present.
 	OnHumanInputRequested(context.Context, *HumanInputRecord) (*Empty, error)
 	// OnHumanInputResolved is invoked whenever a human-input request
 	// transitions to resolved — including resolutions that came from
@@ -192,25 +177,14 @@ type GatewayServiceServer interface {
 	// external system. Unlike human-input, notifications are one-way:
 	// there is nothing for the user to act on.
 	OnNotification(context.Context, *NotificationRecord) (*Empty, error)
-	// PostMessage posts a message to the gateway's external system. Squadron
-	// exposes this to agents via the builtins.gateway.post tool. The payload
-	// is the raw JSON the agent produced for the tool, matching the schema the
-	// gateway advertised via MessageToolSpec — the gateway owns the message
-	// contract (text, formatting, channel override, attachments, …) and parses
-	// the payload itself. The response carries the posted message's ID, so
-	// the agent can edit that message later with EditMessage.
+	// PostMessage posts a message using the payload format advertised by
+	// MessageToolSpec. The returned message ID can be used with EditMessage.
 	PostMessage(context.Context, *PostMessageRequest) (*PostMessageResponse, error)
-	// MessageToolSpec returns how the builtins.gateway.post tool should be
-	// presented to the LLM for this gateway: a description (formatting docs)
-	// and an optional JSON Schema for the tool's parameters. Squadron fetches
-	// it once the gateway is up and builds the tool from it, so each gateway
-	// can advertise exactly the rich-message shape it accepts.
+	// MessageToolSpec returns a description and optional JSON Schema for
+	// the message payload accepted by the gateway.
 	MessageToolSpec(context.Context, *Empty) (*MessageToolSpecResponse, error)
-	// EditMessage replaces the content of a message the gateway posted,
-	// identified by the ID PostMessage returned. Squadron exposes this to
-	// agents via the builtins.gateway.edit tool, so a run can update a post
-	// (e.g. a status line) instead of posting it again. Gateways that can't
-	// edit messages may leave it unimplemented.
+	// EditMessage replaces a posted message using the ID returned by PostMessage.
+	// Gateways with editing support implement this RPC.
 	EditMessage(context.Context, *EditMessageRequest) (*Empty, error)
 	// Shutdown asks the gateway to release external resources cleanly
 	// before squadron tears down the subprocess.
