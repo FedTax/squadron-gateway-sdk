@@ -47,6 +47,8 @@ service GatewayService {
 // PostMessageRequest supplies the message payload and file attachments.
 // The gateway interprets payload using the schema advertised by MessageToolSpec.
 message PostMessageRequest {
+    // Link to the individual run, when available.
+    string run_url = 6;
     // Identifies a Squadron mission thread: a chain of related mission runs.
     string thread_id = 5;
     string payload = 1;
@@ -67,6 +69,8 @@ message PostMessageResponse {
 // same payload format and attachment support as PostMessageRequest.
 // mission_id and task_id identify the calling run and task.
 message EditMessageRequest {
+    // Link to the individual run, when available.
+    string run_url = 7;
     // Identifies a Squadron mission thread: a chain of related mission runs.
     string thread_id = 6;
     string message_id = 1;
@@ -121,6 +125,8 @@ message ConfigureResponse {
 
 // HumanInputRecord carries a question, its resolution, and its mission context.
 message HumanInputRecord {
+    // Link to the individual run, when available.
+    string run_url = 18;
     // Identifies a Squadron mission thread: a chain of related mission runs.
     string thread_id = 17;
     string id = 1;
@@ -179,6 +185,8 @@ message ResolveHumanInputResponse {
 // NotificationRecord describes a single mission-lifecycle notification.
 // All fields are flat strings so the schema stays language-neutral.
 message NotificationRecord {
+    // Link to the individual run, when available.
+    string run_url = 10;
     // Identifies a Squadron mission thread: a chain of related mission runs.
     string thread_id = 9;
     string mission_id = 1;

@@ -53,6 +53,8 @@ const (
 // Go interface for convenience. Empty timestamps decode to the zero
 // time.Time.
 type HumanInputRecord struct {
+	// RunURL is the link to the individual run, when available.
+	RunURL string
 	// ThreadID identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadID          string
 	ID                string
@@ -69,18 +71,20 @@ type HumanInputRecord struct {
 	// than exactly one. When true, the resolved Response is a JSON-
 	// encoded string array (e.g. `["A","C"]`); when false, Response is
 	// the single chosen string. Always false for free-text questions.
-	MultiSelect       bool
-	State             HumanInputState
-	RequestedAt       time.Time
-	ResolvedAt        time.Time // zero when State is open
-	Response          string
-	ResponderUserID   string
+	MultiSelect     bool
+	State           HumanInputState
+	RequestedAt     time.Time
+	ResolvedAt      time.Time // zero when State is open
+	Response        string
+	ResponderUserID string
 }
 
 // NotificationRecord describes a single mission-lifecycle notification
 // pushed to the gateway. Notifications are one-way and informational —
 // unlike human-input requests there is nothing for the user to resolve.
 type NotificationRecord struct {
+	// RunURL is the link to the individual run, when available.
+	RunURL string
 	// ThreadID identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadID    string
 	MissionID   string
@@ -100,6 +104,8 @@ type NotificationRecord struct {
 // PostMessageRequest supplies the message payload and file attachments.
 // The gateway interprets Payload using the schema advertised by MessageToolSpec.
 type PostMessageRequest struct {
+	// RunURL is the link to the individual run, when available.
+	RunURL string
 	// ThreadID identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadID    string
 	Payload     string
@@ -121,6 +127,8 @@ type PostMessageResponse struct {
 // same payload format and attachment support as PostMessageRequest.
 // MissionID and TaskID identify the calling run and task.
 type EditMessageRequest struct {
+	// RunURL is the link to the individual run, when available.
+	RunURL string
 	// ThreadID identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadID    string
 	MessageID   string

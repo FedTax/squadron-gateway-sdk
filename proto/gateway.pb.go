@@ -25,6 +25,8 @@ const (
 // The gateway interprets payload using the schema advertised by MessageToolSpec.
 type PostMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Link to the individual run, when available.
+	RunUrl string `protobuf:"bytes,6,opt,name=run_url,json=runUrl,proto3" json:"run_url,omitempty"`
 	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId    string            `protobuf:"bytes,5,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	Payload     string            `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
@@ -64,6 +66,13 @@ func (x *PostMessageRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PostMessageRequest.ProtoReflect.Descriptor instead.
 func (*PostMessageRequest) Descriptor() ([]byte, []int) {
 	return file_proto_gateway_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PostMessageRequest) GetRunUrl() string {
+	if x != nil {
+		return x.RunUrl
+	}
+	return ""
 }
 
 func (x *PostMessageRequest) GetThreadId() string {
@@ -153,6 +162,8 @@ func (x *PostMessageResponse) GetMessageId() string {
 // mission_id and task_id identify the calling run and task.
 type EditMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Link to the individual run, when available.
+	RunUrl string `protobuf:"bytes,7,opt,name=run_url,json=runUrl,proto3" json:"run_url,omitempty"`
 	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId      string            `protobuf:"bytes,6,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	MessageId     string            `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
@@ -192,6 +203,13 @@ func (x *EditMessageRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use EditMessageRequest.ProtoReflect.Descriptor instead.
 func (*EditMessageRequest) Descriptor() ([]byte, []int) {
 	return file_proto_gateway_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *EditMessageRequest) GetRunUrl() string {
+	if x != nil {
+		return x.RunUrl
+	}
+	return ""
 }
 
 func (x *EditMessageRequest) GetThreadId() string {
@@ -497,6 +515,8 @@ func (x *ConfigureResponse) GetError() string {
 // HumanInputRecord carries a question, its resolution, and its mission context.
 type HumanInputRecord struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Link to the individual run, when available.
+	RunUrl string `protobuf:"bytes,18,opt,name=run_url,json=runUrl,proto3" json:"run_url,omitempty"`
 	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId          string   `protobuf:"bytes,17,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	Id                string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -550,6 +570,13 @@ func (x *HumanInputRecord) ProtoReflect() protoreflect.Message {
 // Deprecated: Use HumanInputRecord.ProtoReflect.Descriptor instead.
 func (*HumanInputRecord) Descriptor() ([]byte, []int) {
 	return file_proto_gateway_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *HumanInputRecord) GetRunUrl() string {
+	if x != nil {
+		return x.RunUrl
+	}
+	return ""
 }
 
 func (x *HumanInputRecord) GetThreadId() string {
@@ -937,6 +964,8 @@ func (x *ResolveHumanInputResponse) GetNotFound() bool {
 // All fields are flat strings so the schema stays language-neutral.
 type NotificationRecord struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Link to the individual run, when available.
+	RunUrl string `protobuf:"bytes,10,opt,name=run_url,json=runUrl,proto3" json:"run_url,omitempty"`
 	// Identifies a Squadron mission thread: a chain of related mission runs.
 	ThreadId    string `protobuf:"bytes,9,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	MissionId   string `protobuf:"bytes,1,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
@@ -984,6 +1013,13 @@ func (x *NotificationRecord) ProtoReflect() protoreflect.Message {
 // Deprecated: Use NotificationRecord.ProtoReflect.Descriptor instead.
 func (*NotificationRecord) Descriptor() ([]byte, []int) {
 	return file_proto_gateway_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *NotificationRecord) GetRunUrl() string {
+	if x != nil {
+		return x.RunUrl
+	}
+	return ""
 }
 
 func (x *NotificationRecord) GetThreadId() string {
@@ -1053,8 +1089,9 @@ var File_proto_gateway_proto protoreflect.FileDescriptor
 
 const file_proto_gateway_proto_rawDesc = "" +
 	"\n" +
-	"\x13proto/gateway.proto\x12\agateway\"\xbe\x01\n" +
-	"\x12PostMessageRequest\x12\x1b\n" +
+	"\x13proto/gateway.proto\x12\agateway\"\xd7\x01\n" +
+	"\x12PostMessageRequest\x12\x17\n" +
+	"\arun_url\x18\x06 \x01(\tR\x06runUrl\x12\x1b\n" +
 	"\tthread_id\x18\x05 \x01(\tR\bthreadId\x12\x18\n" +
 	"\apayload\x18\x01 \x01(\tR\apayload\x129\n" +
 	"\vattachments\x18\x02 \x03(\v2\x17.gateway.FileAttachmentR\vattachments\x12\x1d\n" +
@@ -1063,8 +1100,9 @@ const file_proto_gateway_proto_rawDesc = "" +
 	"\atask_id\x18\x04 \x01(\tR\x06taskId\"4\n" +
 	"\x13PostMessageResponse\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\"\xdd\x01\n" +
-	"\x12EditMessageRequest\x12\x1b\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"\xf6\x01\n" +
+	"\x12EditMessageRequest\x12\x17\n" +
+	"\arun_url\x18\a \x01(\tR\x06runUrl\x12\x1b\n" +
 	"\tthread_id\x18\x06 \x01(\tR\bthreadId\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
@@ -1089,8 +1127,9 @@ const file_proto_gateway_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"C\n" +
 	"\x11ConfigureResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\"\xa8\x04\n" +
-	"\x10HumanInputRecord\x12\x1b\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"\xc1\x04\n" +
+	"\x10HumanInputRecord\x12\x17\n" +
+	"\arun_url\x18\x12 \x01(\tR\x06runUrl\x12\x1b\n" +
 	"\tthread_id\x18\x11 \x01(\tR\bthreadId\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1131,8 +1170,10 @@ const file_proto_gateway_proto_rawDesc = "" +
 	"\x19ResolveHumanInputResponse\x121\n" +
 	"\x06record\x18\x01 \x01(\v2\x19.gateway.HumanInputRecordR\x06record\x12)\n" +
 	"\x10already_resolved\x18\x02 \x01(\bR\x0falreadyResolved\x12\x1b\n" +
-	"\tnot_found\x18\x03 \x01(\bR\bnotFound\"\x8a\x02\n" +
-	"\x12NotificationRecord\x12\x1b\n" +
+	"\tnot_found\x18\x03 \x01(\bR\bnotFound\"\xa3\x02\n" +
+	"\x12NotificationRecord\x12\x17\n" +
+	"\arun_url\x18\n" +
+	" \x01(\tR\x06runUrl\x12\x1b\n" +
 	"\tthread_id\x18\t \x01(\tR\bthreadId\x12\x1d\n" +
 	"\n" +
 	"mission_id\x18\x01 \x01(\tR\tmissionId\x12!\n" +

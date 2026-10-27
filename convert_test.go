@@ -293,3 +293,18 @@ func TestEditMessageRoundTripCarriesIDPayloadAttachmentsAndRun(t *testing.T) {
 		t.Errorf("nil request should yield zero-value EditMessageRequest, got %+v", got)
 	}
 }
+
+func TestRunURLsSurviveWireConversion(t *testing.T) {
+	const want = "https://cc.example/instances/one/runs/run-1"
+	got := []string{
+		recordFromProto(recordToProto(HumanInputRecord{RunURL: want})).RunURL,
+		notificationFromProto(notificationToProto(NotificationRecord{RunURL: want})).RunURL,
+		postMessageFromProto(postMessageToProto(PostMessageRequest{RunURL: want})).RunURL,
+		editMessageFromProto(editMessageToProto(EditMessageRequest{RunURL: want})).RunURL,
+	}
+	for _, url := range got {
+		if url != want {
+			t.Fatalf("run URL lost in wire conversion: %q", url)
+		}
+	}
+}

@@ -95,7 +95,8 @@ their posts, questions and notifications in a single Slack thread.
 
 The SDK carries `ThreadID` on posts, edits, questions and notifications.
 `MissionID` identifies the individual run, and `ToolCallID` identifies the
-question being answered. Gateway implementations choose how to associate a
+question being answered. `RunURL` supplies an optional link to the individual
+run for display. Gateway implementations choose how to associate a
 mission thread with a conversation in their external system.
 
 ## Catch-up after disconnects
