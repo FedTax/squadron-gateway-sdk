@@ -82,7 +82,7 @@ func (g *myGateway) Shutdown(ctx context.Context) error { return nil }
 func (g *myGateway) show(_ gateway.HumanInputRecord)         {}
 func (g *myGateway) markAnswered(_ gateway.HumanInputRecord) {}
 func (g *myGateway) post(_ gateway.NotificationRecord)       {}
-func (g *myGateway) send(_ string)                           {}
+func (g *myGateway) send(_ string) string                    { return "" }
 
 func main() { gateway.Serve(&myGateway{}) }
 ```
